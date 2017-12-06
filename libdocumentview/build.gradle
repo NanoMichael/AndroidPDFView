@@ -31,8 +31,8 @@ dependencies {
 uploadArchives {
     repositories {
         mavenDeployer {
-            pom.groupId = 'com.welearn'
-            pom.artifactId = 'wewidget'
+            pom.groupId = 'io.ea'
+            pom.artifactId = 'pdfview'
             pom.version = android.defaultConfig.versionName
             repository(url: 'http://nexus.dev.xdf100.com/repository/maven-releases/') {
                 authentication(userName: "admin", password: "Youlearn100")
