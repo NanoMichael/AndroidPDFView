@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.8"
+        android:orientation="vertical">
+
+        <io.ea.documentview.pdf.WritablePDFView
+            android:id="@+id/pdf"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <Button
+            android:id="@+id/to_first"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="to first"/>
+
+        <Button
+            android:id="@+id/hide_side"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="hide side"/>
+
+        <Button
+            android:id="@+id/to_last"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="to last"/>
+
+        <Button
+            android:id="@+id/enable_writing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:text="enable writing"/>
+
+        <Button
+            android:id="@+id/retreat_writing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:text="retreat writing"/>
+
+        <Button
+            android:id="@+id/erase"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:text="eraser"/>
+    </FrameLayout>
+
+    <View
+        android:id="@+id/placeholder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.2"
+        android:visibility="gone"/>
+</LinearLayout>
