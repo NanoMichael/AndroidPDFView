@@ -2,6 +2,7 @@ package io.ea.documentview.pdf
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
@@ -129,6 +130,14 @@ open class PDFView : DocumentView {
         get() = internalCrop
 
     private val internalCrop = Rect()
+
+    /** Get page thumbnail with [scale] */
+    fun getPageThumbnail(page: Int, scale: Float, outBitmap: Bitmap) {
+        val renderer = renderer ?: return
+        renderer.renderPage(outBitmap, page, scale) { p, cause ->
+            stateListener?.onRenderingError(p, this, cause)
+        }
+    }
 
     private var setupWhenGotSize = false
     private val pressedArea = Rect()
