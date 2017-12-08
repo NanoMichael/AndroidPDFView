@@ -169,6 +169,14 @@ open class DocumentView : View {
         ViewCompat.postInvalidateOnAnimation(this)
     }
 
+    /** Invalidate all slices. It will recycle all visible slices and repopulate. */
+    fun invalidateAll() {
+        checkOffsetBoundary()
+        sliceManager.recycleAll()
+        sliceManager.populate()
+        ViewCompat.postInvalidateOnAnimation(this)
+    }
+
     /** Stop all running animations */
     fun stopAllAnimations() = animator.stopAll()
 
@@ -239,8 +247,12 @@ open class DocumentView : View {
     /** Callback when zoom end */
     @CallSuper
     open fun onZoomEnd() {
-        if (!isZooming) return
         val adapter = adapter ?: return
+
+        if (!isZooming) {
+            zoomListener?.onZoomEnd(this)
+            return
+        }
         isZooming = false
 
         adapter.onScale(scale)
@@ -250,12 +262,6 @@ open class DocumentView : View {
         sliceManager.populate()
         ViewCompat.postInvalidateOnAnimation(this)
 
-        zoomListener?.onZoomEnd(this)
-    }
-
-    /** Just clear [isZooming] flag and notify listener that scaling has done */
-    internal fun clearZoomFlag() {
-        isZooming = false
         zoomListener?.onZoomEnd(this)
     }
 

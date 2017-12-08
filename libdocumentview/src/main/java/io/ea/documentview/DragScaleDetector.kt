@@ -1,5 +1,8 @@
 package io.ea.documentview
 
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -14,26 +17,12 @@ internal class DragScaleDetector(val view: DocumentView, private val animator: D
 
     private val gestureDetector = GestureDetector(view.context, this).apply { setIsLongpressEnabled(false) }
     private val scaleDetector = ScaleGestureDetector(view.context, this)
-    private val clickOffsetTolerance = ViewConfiguration.get(view.context).scaledTouchSlop / 2
+    private val tapHandler = SingleTapHandler(Looper.getMainLooper())
+    private val singleTabDelay = ViewConfiguration.getDoubleTapTimeout().toLong()
 
     private var scrolling = false
-    private var pressing = false
     private var scaling = false
-    private var pressedX = 0
-    private var pressedY = 0
-
-    override fun onShowPress(e: MotionEvent) {
-        cancelPress()
-        pressing = true
-        pressedX = view.viewXToDocumentX(e.x).toInt()
-        pressedY = view.viewYToDocumentY(e.y).toInt()
-        view.onPressed(pressedX, pressedY)
-    }
-
-    private fun cancelPress() {
-        if (pressing) view.onCancelPress()
-        pressing = false
-    }
+    private var doubleTaping = false
 
     override fun onDown(e: MotionEvent): Boolean {
         animator.stopFling()
@@ -42,8 +31,8 @@ internal class DragScaleDetector(val view: DocumentView, private val animator: D
     }
 
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, dx: Float, dy: Float): Boolean {
-        if (scaling) return false
         cancelPress()
+        if (scaling) return false
         if (!scrolling) view.onScrollStart()
         scrolling = true
         return view.moveBy(dx.toInt(), dy.toInt())
@@ -55,28 +44,18 @@ internal class DragScaleDetector(val view: DocumentView, private val animator: D
     }
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, vx: Float, vy: Float): Boolean {
-        if (scaling) return false
         cancelPress()
+        if (scaling) return false
         return animator.fling(vx.toInt(), vy.toInt())
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         cancelPress()
+        doubleTaping = true
         when {
             Math.abs(view.scale - view.midScale) < 0.00001 -> animator.zoom(view.scale, view.minScale, e.x, e.y)
             view.scale < view.midScale -> animator.zoom(view.scale, view.midScale, e.x, e.y)
             else -> animator.zoom(view.scale, view.midScale, e.x, e.y)
-        }
-        return true
-    }
-
-    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        cancelPress()
-        val x = view.viewXToDocumentX(e.x)
-        val y = view.viewYToDocumentY(e.y)
-        if (Math.abs(x - pressedX) < clickOffsetTolerance &&
-            Math.abs(y - pressedY) < clickOffsetTolerance) {
-            view.onClicked(pressedX, pressedY)
         }
         return true
     }
@@ -94,26 +73,86 @@ internal class DragScaleDetector(val view: DocumentView, private val animator: D
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector) {
-        scaling = false
-        view.onZoomEnd()
+        if (scaling) {
+            scaling = false
+            view.onZoomEnd()
+        }
     }
 
     fun onTouch(event: MotionEvent): Boolean {
-        if (event.action == MotionEvent.ACTION_UP) {
-            if (scrolling) onScrollEnd()
-            if (pressing) cancelPress()
-            /**
-             * A hack way to solve the bug that the
-             * [android.view.ScaleGestureDetector.OnScaleGestureListener.onScaleEnd]
-             * may not get called after scaling has end
-             */
-            if (scaling) {
-                scaling = false
-                view.clearZoomFlag()
+        val action = event.action
+
+        when (action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_POINTER_DOWN -> cancelPress()
+            MotionEvent.ACTION_DOWN -> onPressed(event)
+            MotionEvent.ACTION_UP -> {
+                if (doubleTaping) {
+                    doubleTaping = false
+                    cancelPress()
+                }
+                if (scrolling) {
+                    onScrollEnd()
+                    cancelPress()
+                }
+                /**
+                 * A hack way to solve the bug that the
+                 * [android.view.ScaleGestureDetector.OnScaleGestureListener.onScaleEnd]
+                 * may not get called after scaling has end
+                 */
+                if (scaling) {
+                    scaling = false
+                    view.onZoomEnd()
+                    cancelPress()
+                }
+                stillDown = false
+                if (pressed && !stillDown && !tapHandler.hasMessages(TAP)) onSingleTab()
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                cancelPress()
+                stillDown = false
             }
         }
+
         var handled = scaleDetector.onTouchEvent(event)
         handled = handled or gestureDetector.onTouchEvent(event)
         return handled
+    }
+
+    private var stillDown = false
+    private var pressed = false
+    private var pressedX = 0
+    private var pressedY = 0
+
+    private fun onPressed(e: MotionEvent) {
+        cancelPress()
+        stillDown = true
+        pressed = true
+        pressedX = view.viewXToDocumentX(e.x).toInt()
+        pressedY = view.viewYToDocumentY(e.y).toInt()
+        view.onPressed(pressedX, pressedY)
+        tapHandler.sendEmptyMessageDelayed(TAP, singleTabDelay)
+    }
+
+    private fun cancelPress() {
+        if (pressed) view.onCancelPress()
+        tapHandler.removeMessages(TAP)
+        pressed = false
+    }
+
+    private fun onSingleTab() {
+        cancelPress()
+        view.onClicked(pressedX, pressedY)
+    }
+
+    private inner class SingleTapHandler(looper: Looper) : Handler(looper) {
+
+        override fun handleMessage(msg: Message) {
+            if (msg.what != TAP) return
+            if (pressed && !stillDown) onSingleTab()
+        }
+    }
+
+    companion object {
+        const val TAP = 1
     }
 }

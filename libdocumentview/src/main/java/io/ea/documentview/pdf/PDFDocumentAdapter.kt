@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.support.v4.view.ViewCompat
 import android.util.Log
-import io.ea.documentview.AdapterConfig
 import io.ea.documentview.DocumentAdapter
 import io.ea.documentview.DocumentView
 import io.ea.documentview.Size
@@ -21,11 +20,10 @@ import java.util.*
 open class PDFDocumentAdapter(
     val view: DocumentView,
     originalPagesSize: List<Size>,
-    config: AdapterConfig,
     val bitmapPool: BitmapPool,
     val renderingHandler: RenderingHandler,
     val onRenderingError: (Int, Throwable) -> Unit) :
-    DocumentAdapter(originalPagesSize, bitmapPool.width, bitmapPool.height, config) {
+    DocumentAdapter(originalPagesSize, bitmapPool.width, bitmapPool.height) {
 
     private val src = Rect()
 

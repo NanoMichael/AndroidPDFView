@@ -9,17 +9,22 @@ import java.util.*
  */
 abstract class DocumentAdapter(
     /** Original pages size with current DPI */
-    private val originalPagesSize: List<Size>,
-    private val gridWidth: Int,
-    private val gridHeight: Int,
-    private val config: AdapterConfig) :
+    val originalPagesSize: List<Size>,
+    val gridWidth: Int,
+    val gridHeight: Int) :
     DocumentView.SliceAdapter {
 
-    private val baseDocumentWidth = originalPagesSize.maxBy { it.width }?.width ?: 0
-    private val baseDocumentHeight = originalPagesSize.sumBy { it.height }
+    val originalDocumentWidth = originalPagesSize.maxBy { it.width }?.width ?: 0
+    val originalDocumentHeight = originalPagesSize.sumBy { it.height }
 
-    override var documentWidth = baseDocumentWidth
-    override var documentHeight = baseDocumentHeight
+    val minPageWidth = originalPagesSize.minBy { it.width }?.width ?: 0
+    val minPageHeight = originalPagesSize.minBy { it.height }?.height ?: 0
+
+    /** Config to get scales and page margin */
+    var config: AdapterConfig = EmptyAdapterConfig()
+
+    override var documentWidth = originalDocumentWidth
+    override var documentHeight = originalDocumentHeight
     override var minScale = config.minScale
     override var midScale = config.midScale
     override var maxScale = config.maxScale
@@ -30,6 +35,14 @@ abstract class DocumentAdapter(
     private val attrs = Array(originalPagesSize.size) { PageAttr() }
     private val gridPool = LinkedList<Grid>()
 
+    /**
+     * Crop on original pages of document, default is empty.
+     * If cropped width/height great than the [minPageWidth]/[minPageHeight],
+     * it will be reset to empty, you should check before set.
+     */
+    val crop = Rect()
+    private var scaledCrop = Rect()
+
     override var rawScale = 1f
         set(value) {
             field = value
@@ -38,19 +51,47 @@ abstract class DocumentAdapter(
 
     override var rowCount = 0
 
-    init {
-        setup()
-    }
-
-    private fun setup() {
+    /** Setup adapter, this method will be called before attach to a [DocumentView] */
+    fun setup() {
         rawScale = config.initialScale
         calculatePageAttr()
     }
 
+    /** Recalculate params and slices with [scale] */
+    fun recalculate(scale: Float = config.initialScale) {
+        rawScale = scale
+        calculatePageAttr()
+    }
+
+    fun checkCrop(crop: Rect) {
+        with(crop) {
+            if (left + right >= minPageWidth || top + bottom >= minPageHeight) {
+                crop.setEmpty()
+                return
+            }
+            if (left < 0) left = 0
+            if (right < 0) right = 0
+            if (top < 0) top = 0
+            if (bottom < 0) bottom = 0
+        }
+    }
+
     /** Calculate parameters with [rawScale] */
     private fun calculateParams() {
-        documentWidth = ((baseDocumentWidth + config.pageMargin * 2) * rawScale + 0.5f).toInt()
-        documentHeight = ((baseDocumentHeight + (originalPagesSize.size + 1) * config.pageMargin) * rawScale).toInt()
+        checkCrop(crop)
+        scaledCrop.apply {
+            left = (crop.left * rawScale).toInt()
+            top = (crop.top * rawScale).toInt()
+            right = (crop.right * rawScale).toInt()
+            bottom = (crop.bottom * rawScale).toInt()
+        }
+
+        documentWidth = ((originalDocumentWidth + config.pageMargin * 2) * rawScale + 0.5f).toInt() -
+            scaledCrop.left - scaledCrop.right
+
+        documentHeight = ((originalDocumentHeight + (originalPagesSize.size + 1) * config.pageMargin) * rawScale).toInt() -
+            originalPagesSize.size * (scaledCrop.top + scaledCrop.bottom)
+
         minScale = config.minScale / rawScale
         midScale = config.midScale / rawScale
         maxScale = config.maxScale / rawScale
@@ -63,14 +104,18 @@ abstract class DocumentAdapter(
 
     /** Calculate page attributes with [rawScale] */
     private fun calculatePageAttr() {
+        if (originalPagesSize.isEmpty()) return
+
         val margin = config.pageMargin * rawScale
         var t = margin
         var row = 0
+        val c = scaledCrop
 
         originalPagesSize.forEachIndexed { i, (w, h) ->
             attrs[i].apply {
-                width = (w * rawScale).toInt()
-                height = (h * rawScale).toInt()
+                val fh = h * rawScale - c.top - c.bottom
+                width = (w * rawScale - c.left - c.right).toInt()
+                height = fh.toInt()
 
                 documentTop = (t + 0.5f).toInt()
                 startRow = row
@@ -91,14 +136,14 @@ abstract class DocumentAdapter(
 
                 row = endRow
                 /** To avoid round problem */
-                t += margin + h * rawScale
+                t += margin + fh
             }
         }
 
         rowCount = row
     }
 
-    /** Binary search page by [row], if not found return -1 */
+    /** Binary search page by [row], return -1 if not found */
     fun pageOf(row: Int): Int {
         var low = 0
         var high = attrs.size - 1
@@ -116,7 +161,7 @@ abstract class DocumentAdapter(
     }
 
     /** Current page margin with [rawScale] */
-    val currentPageMargin get() = config.pageMargin * rawScale
+    val currentPageMargin get() = (config.pageMargin * rawScale).toInt()
 
     /** Left position of [page] in document */
     fun leftPositionOf(page: Int) = (documentWidth - attrs[page].width) / 2
@@ -129,6 +174,18 @@ abstract class DocumentAdapter(
 
     /** Height of [page] */
     fun heightOf(page: Int) = attrs[page].height
+
+    /** Convert area in page to area in document */
+    fun pageAreaToDocArea(page: Int, outArea: Rect) {
+        outArea.offset(leftPositionOf(page), topPositionOf(page))
+        outArea.offset(-scaledCrop.left, -scaledCrop.top)
+        outArea.apply {
+            left = maxOf(left, leftPositionOf(page))
+            top = maxOf(top, topPositionOf(page))
+            right = minOf(right, widthOf(page) + left)
+            bottom = minOf(bottom, heightOf(page) + top)
+        }
+    }
 
     /** Retrieve grid from pool, create a new if pool is empty */
     private fun acquireGrid() = if (gridPool.isEmpty()) newGrid() else gridPool.remove()
@@ -164,7 +221,11 @@ abstract class DocumentAdapter(
 
         val grid = acquireGrid().apply {
             page = p
-            clip.apply { set(slice.bounds); offset(-documentLeft, -attr.documentTop) }
+            clip.apply {
+                set(slice.bounds)
+                offset(-documentLeft, -attr.documentTop)
+                offset(scaledCrop.left, scaledCrop.top)
+            }
             onBind(view)
         }
         (slice as GridSlice).grid = grid

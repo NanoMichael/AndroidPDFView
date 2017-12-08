@@ -7,7 +7,10 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.ViewTreeObserver
-import io.ea.documentview.*
+import io.ea.documentview.DefaultAdapterConfig
+import io.ea.documentview.DocumentAdapter
+import io.ea.documentview.DocumentView
+import io.ea.documentview.Size
 
 /**
  * Created by nano on 17-11-24.
@@ -24,8 +27,15 @@ class MainActivity : AppCompatActivity() {
             override fun onGlobalLayout() {
                 view.viewTreeObserver.removeGlobalOnLayoutListener(this)
                 val sizes = List(10) { if (it % 2 == 0) Size(520, 720) else Size(480, 640) }
-                val config = DefaultAdapterConfig(24).apply { update(view.width, view.height, sizes) }
-                view.adapter = Adapter(sizes, config)
+
+                val config = DefaultAdapterConfig(24)
+                val adapter = Adapter(sizes)
+
+                config.update(view.width, view.height, adapter)
+                adapter.config = config
+                adapter.setup()
+
+                view.adapter = adapter
             }
         })
 
@@ -55,8 +65,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    inner class Adapter(pagesSize: List<Size>, config: AdapterConfig) :
-        DocumentAdapter(pagesSize, 480, 480, config) {
+    inner class Adapter(pagesSize: List<Size>) :
+        DocumentAdapter(pagesSize, 480, 480) {
 
         override fun newGrid() = TestGrid()
     }

@@ -17,5 +17,5 @@ interface AdapterConfig {
     val pageMargin: Int
 
     /** Update configuration with current [viewWidth] and [viewHeight] */
-    fun update(viewWidth: Int, viewHeight: Int, originalPagesSize: List<Size>)
+    fun update(viewWidth: Int, viewHeight: Int, adapter: DocumentAdapter)
 }

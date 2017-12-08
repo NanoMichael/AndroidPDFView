@@ -1,6 +1,7 @@
 package io.ea.pdf.test
 
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -25,7 +26,7 @@ class PDFActivity : AppCompatActivity() {
         val decor = window.decorView
         decor.systemUiVisibility = fullScreenFlags
 
-        var showingSide = true
+        var showingSide = false
         val side = findViewById(R.id.placeholder)
 
         val pdf = (findViewById(R.id.pdf) as WritablePDFView).apply {
@@ -39,21 +40,25 @@ class PDFActivity : AppCompatActivity() {
             scrollListener = object : DocumentView.ScrollListener {
 
                 override fun onScrollStart(view: DocumentView) {
-                    Log.i(TAG, "onScrollStart")
+                    // Log.i(TAG, "onScrollStart")
                 }
 
                 override fun onScroll(view: DocumentView, toX: Int, toY: Int) {
-                    Log.i(TAG, "onScroll, to [$toX, $toY]")
+                    // Log.i(TAG, "onScroll, to [$toX, $toY]")
                 }
 
                 override fun onScrollEnd(view: DocumentView) {
-                    Log.i(TAG, "onScrollEnd")
+                    // Log.i(TAG, "onScrollEnd")
                 }
             }
             zoomListener = object : DocumentView.ZoomListener {
 
                 override fun onZoomStart(view: DocumentView) {
-                    Log.e(TAG, "onZoomStart")
+                    val elements = Thread.currentThread().stackTrace
+                    elements.take(10).forEachIndexed { i, e ->
+                        Log.d(TAG, "|" + "-".repeat(i) + " $e")
+                    }
+                    Log.d(TAG, "onZoomStart")
                 }
 
                 override fun onZoom(view: DocumentView, scaleTo: Float, px: Float, py: Float) {
@@ -61,7 +66,11 @@ class PDFActivity : AppCompatActivity() {
                 }
 
                 override fun onZoomEnd(view: DocumentView) {
-                    Log.i(TAG, "onZoomEnd")
+                    val elements = Thread.currentThread().stackTrace
+                    elements.take(10).forEachIndexed { i, e ->
+                        Log.e(TAG, "|" + "-".repeat(i) + " $e")
+                    }
+                    Log.e(TAG, "onZoomEnd")
                 }
             }
             stateListener = object : PDFView.StateListener {
@@ -99,14 +108,16 @@ class PDFActivity : AppCompatActivity() {
 
         findViewById(R.id.hide_side).setOnClickListener {
             it as TextView
-            if (it.isSelected) {
-                side.visibility = View.VISIBLE
-                it.text = "hide side"
-            } else {
-                side.visibility = View.GONE
-                it.text = "show side"
-            }
             it.isSelected = !it.isSelected
+            side.visibility = if (it.isSelected) View.GONE else View.VISIBLE
+            it.text = if (it.isSelected) "show side" else "hide side"
+        }
+
+        findViewById(R.id.crop).setOnClickListener {
+            it as TextView
+            it.isSelected = !it.isSelected
+            pdf.crop = if (it.isSelected) Rect(200, 200, 200, 200) else Rect()
+            it.text = if (it.isSelected) "uncrop" else "crop"
         }
     }
 
