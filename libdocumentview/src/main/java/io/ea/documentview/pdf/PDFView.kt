@@ -127,7 +127,7 @@ open class PDFView : DocumentView {
             if (internalCrop == value) return
             onCropChange(value)
         }
-        get() = internalCrop
+        get() = Rect().apply { set(internalCrop) }
 
     private val internalCrop = Rect()
 
