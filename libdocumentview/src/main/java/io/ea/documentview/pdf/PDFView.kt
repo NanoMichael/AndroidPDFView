@@ -71,7 +71,10 @@ open class PDFView : DocumentView {
     var pageBackground: Drawable? = null
 
     /** On link click event handler, default is [handleLinkClick] */
-    var onLinkClick: (PdfDocument.Link) -> Unit = this::handleLinkClick
+    var onLinkClick: (PdfDocument.Link) -> Unit = {
+        // Manually invoke to avoid annoying preview problem
+        handleLinkClick(it)
+    }
 
     /** On single tab callback */
     var onSingleTab: (PDFView) -> Unit = {}
@@ -121,7 +124,7 @@ open class PDFView : DocumentView {
     /** Table of contents of document, return null if no document opened */
     val tableOfContents get() = if (renderer?.isOpened == true) renderer?.tableOfContents else null
 
-    /** Crop of pages, default is empty */
+    /** Crop of pages, default is empty, change on returned value has no side effects */
     var crop: Rect
         set(value) {
             if (internalCrop == value) return
