@@ -237,7 +237,7 @@ open class PDFView : DocumentView {
     /** Scroll to [page] with [offset], [smooth] indicates if scroll smoothly, default is `false` */
     fun scrollToPage(page: Int, offset: Int = 0, smooth: Boolean = false) {
         val adapter = pdfAdapter ?: return
-        val to = adapter.topPositionOf(page) + offset + adapter.currentPageMargin
+        val to = adapter.topPositionOf(page) + offset - adapter.currentPageMargin
         stopAllAnimations()
         if (smooth) smoothMoveTo(xOffset, to)
         else moveTo(xOffset, to)
