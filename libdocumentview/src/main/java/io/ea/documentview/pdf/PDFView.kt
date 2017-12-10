@@ -135,9 +135,9 @@ open class PDFView : DocumentView {
     private val internalCrop = Rect()
 
     /** Get page thumbnail with [scale] */
-    fun getPageThumbnail(page: Int, scale: Float, outBitmap: Bitmap) {
+    fun getPageThumbnail(outBitmap: Bitmap, page: Int, scale: Float, left: Int = 0, top: Int = 0) {
         val renderer = renderer ?: return
-        renderer.renderPage(outBitmap, page, scale) { p, cause ->
+        renderer.renderPageClip(outBitmap, page, left, top, scale) { p, cause ->
             stateListener?.onRenderingError(p, this, cause)
         }
     }

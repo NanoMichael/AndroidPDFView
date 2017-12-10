@@ -93,10 +93,6 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) {
         return true
     }
 
-    /** Render page into [bitmap] */
-    fun renderPage(bitmap: Bitmap, page: Int, scale: Float, onErr: (Int, Throwable) -> Unit) =
-        renderPageClip(bitmap, page, 0, 0, scale, onErr)
-
     /** Get page count of document, return 0 if document not opened */
     val pageCount get() = pagesSize.size
 
