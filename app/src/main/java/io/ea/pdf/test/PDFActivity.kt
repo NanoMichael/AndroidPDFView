@@ -92,7 +92,7 @@ class PDFActivity : AppCompatActivity() {
                 }
             }
         }
-        pdf.load(FileSource(File("/sdcard/long.pdf")))
+        pdf.load(FileSource(File("/sdcard/large.pdf")))
 
         findViewById(R.id.to_first).setOnClickListener { pdf.scrollToPage(0) }
         findViewById(R.id.to_last).setOnClickListener { pdf.scrollToPage(pdf.pageCount - 1) }

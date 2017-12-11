@@ -38,8 +38,13 @@ open class PDFView : DocumentView {
         super(context, attrs, defStyleAttr)
 
     private var renderingThread: HandlerThread? = null
-    private var renderingHandler: RenderingHandler? = null
-    private var renderer: PDFRenderer? = null
+
+    /** Rendering handler to render page async */
+    var renderingHandler: RenderingHandler? = null
+        private set
+
+    var renderer: PDFRenderer? = null
+        private set
 
     /** MUST BE A [PDFDocumentAdapter], otherwise a [IllegalArgumentException] will be throw */
     override var adapter: SliceAdapter?
@@ -247,12 +252,18 @@ open class PDFView : DocumentView {
     private fun searchLink(x: Int, y: Int, onFound: (PdfDocument.Link, Rect) -> Unit): Boolean {
         val renderer = renderer ?: return false
         val adapter = pdfAdapter ?: return false
+        val handler = renderingHandler ?: return false
         if (!renderer.isOpened) return false
 
         if (firstVisiblePage < 0 || lastVisiblePage < 0) return false
 
         for (i in firstVisiblePage..lastVisiblePage) {
-            renderer.getPageLinks(i).forEach {
+            val links = renderer.peekPageLinks(i)
+            if (links == null) {
+                handler.post { renderer.getPageLinks(i) }
+                continue
+            }
+            links.forEach {
                 val b = it.bounds
                 val lt = renderer.getScaledPageCoords(i, adapter.rawScale, b.left, b.top)
                 val rb = renderer.getScaledPageCoords(i, adapter.rawScale, b.right, b.bottom)
@@ -287,7 +298,7 @@ open class PDFView : DocumentView {
         val uri = link.uri
         if (link.destPageIdx != null) {
             if (BuildConfig.DEBUG) Log.i(TAG, "jump to ${link.destPageIdx}")
-            scrollToPage(link.destPageIdx, 0, true)
+            scrollToPage(link.destPageIdx)
         } else if (uri != null && uri.isNotEmpty()) {
             if (BuildConfig.DEBUG) Log.i(TAG, "got uri: $uri")
             val raw = Uri.parse(uri)

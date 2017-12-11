@@ -9,7 +9,7 @@ import java.io.InputStream
 /**
  * Created by nano on 17-12-4.
  */
-class InputStreamSource(private val input: InputStream, private val pwd: String? = null) : PDFSource {
+class InputStreamSource(val input: InputStream, val pwd: String? = null) : PDFSource {
 
     override fun createDocument(context: Context, core: PdfiumCore): PdfDocument {
         val os = ByteArrayOutputStream()

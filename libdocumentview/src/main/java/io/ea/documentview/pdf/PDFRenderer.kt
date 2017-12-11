@@ -102,6 +102,9 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) {
     /** Table of contents of document */
     val tableOfContents: MutableList<PdfDocument.Bookmark>? by lazy { checkDocument(); core.getTableOfContents(document) }
 
+    /** Peek for page links, return null if not fetched */
+    fun peekPageLinks(page: Int) = pagesLinks[page]
+
     /** Get links in [page] */
     fun getPageLinks(page: Int): List<PdfDocument.Link> {
         checkDocument()

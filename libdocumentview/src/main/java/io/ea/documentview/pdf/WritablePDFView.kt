@@ -35,10 +35,12 @@ open class WritablePDFView : PDFView {
         strokeCap = Paint.Cap.ROUND
     }
 
-    private val eraserRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-        ERASER_RADIUS, context.resources.displayMetrics)
     private val tmpPath = Path()
     private val erasePath = Path()
+
+    /** Eraser radius, default is 4dp */
+    var eraserRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+        ERASER_RADIUS, context.resources.displayMetrics)
 
     /** If support eraser */
     val isSupportEraser = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
