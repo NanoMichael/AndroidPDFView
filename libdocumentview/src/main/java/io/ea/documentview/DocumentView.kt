@@ -44,6 +44,15 @@ open class DocumentView : View {
             }
         }
 
+    /** Current scroll state, see [ScrollListener] */
+    var scrollState = SCROLL_STATE_IDLE
+        internal set(value) {
+            if (field == value) return
+            val old = field
+            field = value
+            scrollListener?.onScrollSateChanged(this, old, value)
+        }
+
     /** Callback to listen scroll events, default is `null` */
     var scrollListener: ScrollListener? = null
 
@@ -180,7 +189,7 @@ open class DocumentView : View {
     /** Stop all running animations */
     fun stopAllAnimations() = animator.stopAll()
 
-    /** Smooth moveTo document to specified [x], [y] position */
+    /** Smooth move document to specified [x], [y] position */
     fun smoothMoveTo(x: Int, y: Int) {
         adapter ?: return
         animator.moveTo(x, y)
@@ -194,7 +203,7 @@ open class DocumentView : View {
         val targetY = adjustYOffset(y)
 
         if (targetY != yOffset || targetX != xOffset) {
-            onScroll(targetX, targetY)
+            scrollListener?.onScrolled(this, targetX - xOffset, targetY - yOffset)
             xOffset = targetX
             yOffset = targetY
             repopulate()
@@ -216,13 +225,12 @@ open class DocumentView : View {
         val x = xOffset * ds - px + px * ds
         val y = yOffset * ds - py + py * ds
 
-        onZoom(scale, px, py)
-
         this.scale = targetScale
 
         if (!moveTo(x.toInt(), y.toInt())) repopulate()
 
         isZooming = true
+        onZoomed(ds, px, py)
         return true
     }
 
@@ -240,8 +248,8 @@ open class DocumentView : View {
 
     /** Callback when zooming */
     @CallSuper
-    open fun onZoom(scale: Float, px: Float, py: Float) {
-        zoomListener?.onZoom(this, scale, px, py)
+    open fun onZoomed(deltaScale: Float, px: Float, py: Float) {
+        zoomListener?.onZoomed(this, deltaScale, px, py)
     }
 
     /** Callback when zoom end */
@@ -263,24 +271,6 @@ open class DocumentView : View {
         ViewCompat.postInvalidateOnAnimation(this)
 
         zoomListener?.onZoomEnd(this)
-    }
-
-    /** Callback when scroll start */
-    @CallSuper
-    open fun onScrollStart() {
-        scrollListener?.onScrollStart(this)
-    }
-
-    /** Callback when scrolling */
-    @CallSuper
-    open fun onScroll(toX: Int, toY: Int) {
-        scrollListener?.onScroll(this, toX, toY)
-    }
-
-    /** Callback when scroll end */
-    @CallSuper
-    open fun onScrollEnd() {
-        scrollListener?.onScrollEnd(this)
     }
 
     /** Callback when pressed on position ([x], [y]) of document */
@@ -406,19 +396,28 @@ open class DocumentView : View {
 
     interface ScrollListener {
 
-        fun onScrollStart(view: DocumentView)
+        /** Callback method when document scrolled */
+        fun onScrolled(view: DocumentView, dx: Int, dy: Int)
 
-        fun onScroll(view: DocumentView, toX: Int, toY: Int)
-
-        fun onScrollEnd(view: DocumentView)
+        /**
+         * Callback method to be called when scroll state changes. [oldState] and [newState] is one of
+         * [SCROLL_STATE_IDLE], [SCROLL_STATE_DRAGGING] or [SCROLL_STATE_FLING]
+         */
+        fun onScrollSateChanged(view: DocumentView, oldState: Int, newState: Int)
     }
 
     interface ZoomListener {
 
         fun onZoomStart(view: DocumentView)
 
-        fun onZoom(view: DocumentView, scaleTo: Float, px: Float, py: Float)
+        fun onZoomed(view: DocumentView, deltaScale: Float, px: Float, py: Float)
 
         fun onZoomEnd(view: DocumentView)
+    }
+
+    companion object {
+        const val SCROLL_STATE_IDLE = 0
+        const val SCROLL_STATE_DRAGGING = 1
+        const val SCROLL_STATE_FLING = 2
     }
 }

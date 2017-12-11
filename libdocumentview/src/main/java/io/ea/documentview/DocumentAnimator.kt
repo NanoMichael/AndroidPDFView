@@ -56,7 +56,7 @@ internal class DocumentAnimator(val context: Context, val view: DocumentView) {
                 stopAll()
                 xAnim?.start()
                 yAnim?.start()
-                view.onScrollStart()
+                view.scrollState = DocumentView.SCROLL_STATE_FLING
             }
         }
 
@@ -78,7 +78,7 @@ internal class DocumentAnimator(val context: Context, val view: DocumentView) {
         }
 
         override fun onAnimationEnd(animation: Animator) {
-            view.onScrollEnd()
+            view.scrollState = DocumentView.SCROLL_STATE_IDLE
         }
     }
 
@@ -132,7 +132,7 @@ internal class DocumentAnimator(val context: Context, val view: DocumentView) {
             scroller.fling(view.xOffset, view.yOffset, -vx, -vy,
                 view.minXOffset, view.maxXOffset,
                 view.minYOffset, view.maxYOffset, 0, 0)
-            view.onScrollStart()
+            view.scrollState = DocumentView.SCROLL_STATE_FLING
             view.post(this)
             return true
         }
@@ -141,7 +141,7 @@ internal class DocumentAnimator(val context: Context, val view: DocumentView) {
 
         override fun run() {
             if (scroller.isFinished || !scroller.computeScrollOffset()) {
-                view.onScrollEnd()
+                view.scrollState = DocumentView.SCROLL_STATE_IDLE
                 return
             }
             view.moveTo(scroller.currX, scroller.currY)

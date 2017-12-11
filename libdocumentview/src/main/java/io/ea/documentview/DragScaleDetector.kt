@@ -33,14 +33,14 @@ internal class DragScaleDetector(val view: DocumentView, private val animator: D
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, dx: Float, dy: Float): Boolean {
         cancelPress()
         if (scaling) return false
-        if (!scrolling) view.onScrollStart()
+        if (!scrolling) view.scrollState = DocumentView.SCROLL_STATE_DRAGGING
         scrolling = true
         return view.moveBy(dx.toInt(), dy.toInt())
     }
 
     private fun onScrollEnd() {
         scrolling = false
-        view.onScrollEnd()
+        view.scrollState = DocumentView.SCROLL_STATE_IDLE
     }
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, vx: Float, vy: Float): Boolean {

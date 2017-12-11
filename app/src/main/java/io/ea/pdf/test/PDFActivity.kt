@@ -39,16 +39,12 @@ class PDFActivity : AppCompatActivity() {
             }
             scrollListener = object : DocumentView.ScrollListener {
 
-                override fun onScrollStart(view: DocumentView) {
-                    // Log.i(TAG, "onScrollStart")
-                }
-
-                override fun onScroll(view: DocumentView, toX: Int, toY: Int) {
+                override fun onScrolled(view: DocumentView, dx: Int, dy: Int) {
                     // Log.i(TAG, "onScroll, to [$toX, $toY]")
                 }
 
-                override fun onScrollEnd(view: DocumentView) {
-                    // Log.i(TAG, "onScrollEnd")
+                override fun onScrollSateChanged(view: DocumentView, oldState: Int, newState: Int) {
+                    Log.i(TAG, "onScrollStateChanged, $oldState -> $newState")
                 }
             }
             zoomListener = object : DocumentView.ZoomListener {
@@ -61,8 +57,8 @@ class PDFActivity : AppCompatActivity() {
                     Log.d(TAG, "onZoomStart")
                 }
 
-                override fun onZoom(view: DocumentView, scaleTo: Float, px: Float, py: Float) {
-                    Log.i(TAG, "onZoom, to [$scaleTo, $px, $py]")
+                override fun onZoomed(view: DocumentView, deltaScale: Float, px: Float, py: Float) {
+                    Log.i(TAG, "onZoom, to [$deltaScale, $px, $py]")
                 }
 
                 override fun onZoomEnd(view: DocumentView) {
