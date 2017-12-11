@@ -396,7 +396,10 @@ open class DocumentView : View {
 
     interface ScrollListener {
 
-        /** Callback method when document scrolled */
+        /**
+         * Callback method to be called when document scrolled. It's normal that [onScrollSateChanged]
+         * not get called while this method has been invoked, for example when jump to a position.
+         */
         fun onScrolled(view: DocumentView, dx: Int, dy: Int)
 
         /**
