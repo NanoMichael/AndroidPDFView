@@ -65,8 +65,21 @@ open class PDFView : DocumentView {
      * to filling the view width
      */
     var adapterConfig: AdapterConfig? = null
+        set(value) {
+            if (field === value) return
+            field = value
+            val pdfAdapter = pdfAdapter ?: return
+            if (value != null && width != 0 && height != 0) {
+                value.update(width, height, pdfAdapter)
+                pdfAdapter.config = value
+            }
+        }
 
-    /** Bitmap pool for adapter, default is a [PDFDocumentAdapter.BitmapPool] */
+    /**
+     * Bitmap pool for adapter, default is a [PDFDocumentAdapter.BitmapPool]. You may want share one
+     * pool between adapters. But you should notice that you can not change the pool of adapter once
+     * the adapter has been settled, you must specify your own pool before [load] has been called.
+     */
     var bitmapPool: PDFDocumentAdapter.BitmapPool? = null
 
     /** Drawable to show press */

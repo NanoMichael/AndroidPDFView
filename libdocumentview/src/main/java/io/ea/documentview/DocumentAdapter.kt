@@ -22,6 +22,11 @@ abstract class DocumentAdapter(
 
     /** Config to get scales and page margin */
     var config: AdapterConfig = EmptyAdapterConfig()
+        set(value) {
+            if (field === value) return
+            field = value
+            updateParams()
+        }
 
     override var documentWidth = originalDocumentWidth
     override var documentHeight = originalDocumentHeight
@@ -46,7 +51,7 @@ abstract class DocumentAdapter(
     override var rawScale = 1f
         set(value) {
             field = value
-            calculateParams()
+            updateParams()
         }
 
     override var rowCount = 0
@@ -54,13 +59,13 @@ abstract class DocumentAdapter(
     /** Setup adapter, this method will be called before attach to a [DocumentView] */
     fun setup() {
         rawScale = config.initialScale
-        calculatePageAttr()
+        updatePageAttr()
     }
 
     /** Recalculate params and slices with [scale] */
     fun recalculate(scale: Float = config.initialScale) {
         rawScale = scale
-        calculatePageAttr()
+        updatePageAttr()
     }
 
     fun checkCrop(crop: Rect) {
@@ -77,7 +82,7 @@ abstract class DocumentAdapter(
     }
 
     /** Calculate parameters with [rawScale] */
-    private fun calculateParams() {
+    private fun updateParams() {
         checkCrop(crop)
         scaledCrop.apply {
             left = (crop.left * rawScale).toInt()
@@ -99,11 +104,11 @@ abstract class DocumentAdapter(
 
     override fun onScale(relativeScale: Float) {
         rawScale *= relativeScale
-        calculatePageAttr()
+        updatePageAttr()
     }
 
     /** Calculate page attributes with [rawScale] */
-    private fun calculatePageAttr() {
+    private fun updatePageAttr() {
         if (originalPagesSize.isEmpty()) return
 
         val margin = config.pageMargin * rawScale

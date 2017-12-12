@@ -172,7 +172,7 @@ open class DocumentView : View {
     /** Convert y in view to y in document */
     fun viewYToDocumentY(y: Float) = y + yOffset
 
-    /** Invalidate visible slices */
+    /** Invalidate visible slices. It just rebind the visible slices */
     fun invalidateVisible() {
         sliceManager.rebind()
         ViewCompat.postInvalidateOnAnimation(this)
@@ -309,14 +309,14 @@ open class DocumentView : View {
     override fun onTouchEvent(event: MotionEvent) = gestureDetector.onTouch(event)
 
     override fun canScrollVertically(direction: Int) = when {
-        direction < 0 -> yOffset < maxYOffset
-        direction > 0 -> yOffset > minYOffset
+        direction < 0 -> yOffset > minYOffset
+        direction > 0 -> yOffset < maxYOffset
         else -> false
     }
 
     override fun canScrollHorizontally(direction: Int) = when {
-        direction < 0 -> xOffset < maxXOffset
-        direction > 0 -> xOffset > minXOffset
+        direction < 0 -> xOffset > minXOffset
+        direction > 0 -> xOffset < maxXOffset
         else -> false
     }
 
@@ -398,7 +398,8 @@ open class DocumentView : View {
 
         /**
          * Callback method to be called when document scrolled. It's normal that [onScrollSateChanged]
-         * not get called while this method has been invoked, for example when jump to a position.
+         * not get called while this method has been invoked, for example when jump to a position with
+         * no animations.
          */
         fun onScrolled(view: DocumentView, dx: Int, dy: Int)
 
