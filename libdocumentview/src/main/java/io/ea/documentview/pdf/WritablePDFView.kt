@@ -165,6 +165,12 @@ open class WritablePDFView : PDFView {
         return true
     }
 
+    override fun canScrollHorizontally(direction: Int) =
+        isWritingEnabled || super.canScrollHorizontally(direction)
+
+    override fun canScrollVertically(direction: Int) =
+        isWritingEnabled || super.canScrollVertically(direction)
+
     override fun afterDrawSlices(canvas: Canvas) {
         drawStrokes(canvas)
         super.afterDrawSlices(canvas)

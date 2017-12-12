@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import io.ea.documentview.DefaultAdapterConfig
 import io.ea.documentview.DocumentView
 import io.ea.documentview.pdf.PDFView
 import io.ea.documentview.pdf.WritablePDFView
@@ -30,6 +31,7 @@ class PDFActivity : AppCompatActivity() {
         val side = findViewById(R.id.placeholder)
 
         val pdf = (findViewById(R.id.pdf) as WritablePDFView).apply {
+            adapterConfig = DefaultAdapterConfig(8)
             pageBackground = resources.getDrawable(R.drawable.bg_page)
             writingColor = Color.RED
             onSingleTab = {
