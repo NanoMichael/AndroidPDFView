@@ -18,6 +18,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".PDFActivity"/>
+        <activity
+            android:name=".PDFActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
     </application>
 </manifest>

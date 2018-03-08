@@ -1,5 +1,7 @@
 package io.ea.documentview
 
+import android.support.annotation.CallSuper
+
 /**
  * Created by nano on 17-12-2.
  */
@@ -16,6 +18,15 @@ interface AdapterConfig {
 
     val pageMargin: Int
 
+    var onConfigChange: () -> Unit
+
+    fun onConfigChange(action: () -> Unit) {
+        onConfigChange = action
+    }
+
     /** Update configuration with current [viewWidth] and [viewHeight] */
-    fun update(viewWidth: Int, viewHeight: Int, adapter: DocumentAdapter)
+    @CallSuper
+    fun update(viewWidth: Int, viewHeight: Int, adapter: DocumentAdapter) {
+        onConfigChange()
+    }
 }

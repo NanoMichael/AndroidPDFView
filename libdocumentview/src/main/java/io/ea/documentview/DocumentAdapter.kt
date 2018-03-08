@@ -25,6 +25,7 @@ abstract class DocumentAdapter(
         set(value) {
             if (field === value) return
             field = value
+            field.onConfigChange { updateParams() }
             updateParams()
         }
 

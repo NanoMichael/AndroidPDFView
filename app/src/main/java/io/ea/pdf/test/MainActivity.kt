@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import android.view.ViewTreeObserver
 import io.ea.documentview.DefaultAdapterConfig
 import io.ea.documentview.DocumentAdapter
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val view = findViewById(R.id.slice_view) as DocumentView
+        val view = findViewById<DocumentView>(R.id.slice_view)
         view.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
 
             override fun onGlobalLayout() {
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        findViewById(R.id.to_pdf).setOnClickListener {
+        findViewById<View>(R.id.to_pdf).setOnClickListener {
             startActivity(Intent(this, PDFActivity::class.java))
         }
     }

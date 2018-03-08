@@ -10,8 +10,5 @@ class EmptyAdapterConfig : AdapterConfig {
     override val midScale = 1f
     override val maxScale = 1f
     override val pageMargin = 0
-
-    override fun update(viewWidth: Int, viewHeight: Int, adapter: DocumentAdapter) {
-        // do nothing
-    }
+    override var onConfigChange: () -> Unit = {}
 }

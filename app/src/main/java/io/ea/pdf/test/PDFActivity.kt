@@ -28,10 +28,10 @@ class PDFActivity : AppCompatActivity() {
         decor.systemUiVisibility = fullScreenFlags
 
         var showingSide = false
-        val side = findViewById(R.id.placeholder)
+        val side = findViewById<View>(R.id.placeholder)
 
-        val pdf = (findViewById(R.id.pdf) as WritablePDFView).apply {
-            adapterConfig = DefaultAdapterConfig(8)
+        val pdf = findViewById<WritablePDFView>(R.id.pdf).apply {
+            adapterConfig = DefaultAdapterConfig(18)
             pageBackground = resources.getDrawable(R.drawable.bg_page)
             writingColor = Color.RED
             onSingleTab = {
@@ -92,26 +92,26 @@ class PDFActivity : AppCompatActivity() {
         }
         pdf.load(FileSource(File("/sdcard/large.pdf")))
 
-        findViewById(R.id.to_first).setOnClickListener { pdf.scrollToPage(0) }
-        findViewById(R.id.to_last).setOnClickListener { pdf.scrollToPage(pdf.pageCount - 1) }
-        findViewById(R.id.enable_writing).setOnClickListener {
+        findViewById<View>(R.id.to_first).setOnClickListener { pdf.scrollToPage(0) }
+        findViewById<View>(R.id.to_last).setOnClickListener { pdf.scrollToPage(pdf.pageCount - 1) }
+        findViewById<View>(R.id.enable_writing).setOnClickListener {
             (it as TextView).text = if (pdf.isWritingEnabled) "enable writing" else "disable writing"
             pdf.isWritingEnabled = !pdf.isWritingEnabled
         }
-        findViewById(R.id.retreat_writing).setOnClickListener { pdf.retreatWriting() }
-        findViewById(R.id.erase).setOnClickListener {
+        findViewById<View>(R.id.retreat_writing).setOnClickListener { pdf.retreatWriting() }
+        findViewById<View>(R.id.erase).setOnClickListener {
             (it as TextView).text = if (pdf.isEraseMode) "eraser" else "pen"
             pdf.isEraseMode = !pdf.isEraseMode
         }
 
-        findViewById(R.id.hide_side).setOnClickListener {
+        findViewById<View>(R.id.hide_side).setOnClickListener {
             it as TextView
             it.isSelected = !it.isSelected
             side.visibility = if (it.isSelected) View.GONE else View.VISIBLE
             it.text = if (it.isSelected) "show side" else "hide side"
         }
 
-        findViewById(R.id.crop).setOnClickListener {
+        findViewById<View>(R.id.crop).setOnClickListener {
             it as TextView
             it.isSelected = !it.isSelected
             pdf.crop = if (it.isSelected) Rect(200, 200, 200, 200) else Rect()

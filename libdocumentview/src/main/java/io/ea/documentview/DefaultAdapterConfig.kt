@@ -17,6 +17,8 @@ class DefaultAdapterConfig(private val fullWidthPageMargin: Int) : AdapterConfig
 
     override var pageMargin = 0
 
+    override var onConfigChange: () -> Unit = {}
+
     private val prevCrop = Rect()
 
     override fun update(viewWidth: Int, viewHeight: Int, adapter: DocumentAdapter) {
@@ -46,5 +48,10 @@ class DefaultAdapterConfig(private val fullWidthPageMargin: Int) : AdapterConfig
         midScale = maxOf(widthScale, heightScale)
         maxScale = viewWidth * 3f / maxPageWidth
         initialScale = widthScale
+
+        super.update(viewWidth, viewHeight, adapter)
     }
+
+    override fun toString(): String =
+        "initial scale = $initialScale, max scale = $maxScale, min scale = $minScale, mid scale = $midScale"
 }
