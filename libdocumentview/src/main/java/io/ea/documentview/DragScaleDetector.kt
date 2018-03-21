@@ -39,9 +39,11 @@ internal class DragScaleDetector(val view: DocumentView, private val animator: D
         if (!scrolling) {
             view.scrollState = DocumentView.SCROLL_STATE_DRAGGING
             /* Hack way to remove the touch slop distance when first scrolling event happened */
-            val r = Math.sqrt((touchSlop * touchSlop / (dx * dx + dy * dy)).toDouble()).toFloat()
-            x -= dx * r
-            y -= dy * r
+            if (e2.pointerCount < 2) {
+                val r = Math.sqrt((touchSlop * touchSlop / (dx * dx + dy * dy)).toDouble()).toFloat()
+                x -= dx * r
+                y -= dy * r
+            }
         }
         scrolling = true
         return view.moveBy(x.toInt(), y.toInt())

@@ -4,6 +4,8 @@ import android.support.annotation.CallSuper
 
 /**
  * Created by nano on 17-12-2.
+ *
+ * Adapter configurations
  */
 interface AdapterConfig {
 

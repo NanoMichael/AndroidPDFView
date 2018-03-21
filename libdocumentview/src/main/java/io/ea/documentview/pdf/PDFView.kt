@@ -46,7 +46,7 @@ open class PDFView : DocumentView {
     var renderer: PDFRenderer? = null
         private set
 
-    /** MUST BE A [PDFDocumentAdapter], otherwise a [IllegalArgumentException] will be throw */
+    /** MUST BE A [PDFDocumentAdapter], otherwise a [IllegalArgumentException] will be thrown */
     override var adapter: SliceAdapter?
         get() = super.adapter
         set(value) {
@@ -76,7 +76,7 @@ open class PDFView : DocumentView {
         }
 
     /**
-     * Bitmap pool for adapter, default is a [PDFDocumentAdapter.BitmapPool]. You may want share one
+     * Bitmap pool for adapter, default is a [PDFDocumentAdapter.BitmapPool]. You may want to share one
      * pool between adapters. But you should notice that you can not change the pool of adapter once
      * the adapter has been settled, you must specify your own pool before [load] has been called.
      */
@@ -103,7 +103,7 @@ open class PDFView : DocumentView {
     /**
      * Create a new [PDFDocumentAdapter], default is a [PDFDocumentAdapter] with `320 * 320` grid size
      *
-     * FIXME ugly way to expose create new adapter
+     * FIXME Ugly way to expose create new adapter
      */
     var newAdapter: (
         PDFView,

@@ -35,7 +35,7 @@ class DefaultAdapterConfig(private val fullWidthPageMargin: Int) : AdapterConfig
 
         /**
          * If page margin has been calculated before or crop has not been changed,
-         * we don't change it, just update scales
+         * we don't change page margin, just update scales
          */
         if (pageMargin == 0 || prevCrop != adapter.crop) pageMargin = (fullWidthPageMargin / widthScale).toInt()
         else widthScale = viewWidth / (maxPageWidth + pageMargin * 2f)
