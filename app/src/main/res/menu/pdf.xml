@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/to_first"
+        android:title="TO FIRST PAGE"/>
+
+    <item
+        android:id="@+id/to_last"
+        android:title="TO LAST PAGE"/>
+
+    <item
+        android:id="@+id/enable_writing"
+        android:title="ENABLE WRITING"/>
+
+    <item
+        android:id="@+id/retreat_writing"
+        android:title="RETREAT WRITING"/>
+
+    <item
+        android:id="@+id/erase"
+        android:title="ERASER"/>
+
+    <item
+        android:id="@+id/crop"
+        android:title="CROP"/>
+
+    <item
+        android:id="@+id/show_side"
+        android:title="SHOW SIDE"/>
+</menu>

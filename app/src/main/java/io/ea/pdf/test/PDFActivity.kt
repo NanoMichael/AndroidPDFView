@@ -5,8 +5,9 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
 import io.ea.documentview.DefaultAdapterConfig
 import io.ea.documentview.DocumentView
 import io.ea.documentview.pdf.PDFView
@@ -20,29 +21,22 @@ import java.io.File
  */
 class PDFActivity : AppCompatActivity() {
 
+    private lateinit var pdf: WritablePDFView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_pdf)
-        val decor = window.decorView
-        decor.systemUiVisibility = fullScreenFlags
 
-        var showingSide = false
-        val side = findViewById<View>(R.id.placeholder)
-
-        val pdf = findViewById<WritablePDFView>(R.id.pdf).apply {
+        pdf = findViewById<WritablePDFView>(R.id.pdf).apply {
             adapterConfig = DefaultAdapterConfig(18)
             pageBackground = resources.getDrawable(R.drawable.bg_page)
             writingColor = Color.RED
-            onSingleTab = {
-                if (showingSide) side.visibility = View.GONE
-                else side.visibility = View.VISIBLE
-                showingSide = !showingSide
-            }
+            onSingleTab = { Log.i(TAG, "onSingleTab") }
             scrollListener = object : DocumentView.ScrollListener {
 
                 override fun onScrolled(view: DocumentView, dx: Int, dy: Int) {
-                    // Log.i(TAG, "onScroll, to [$toX, $toY]")
+                    Log.i(TAG, "onScrolled, [$dx, $dy]")
                 }
 
                 override fun onScrollSateChanged(view: DocumentView, oldState: Int, newState: Int) {
@@ -60,7 +54,7 @@ class PDFActivity : AppCompatActivity() {
                 }
 
                 override fun onZoomed(view: DocumentView, deltaScale: Float, px: Float, py: Float) {
-                    Log.i(TAG, "onZoom, to [$deltaScale, $px, $py]")
+                    Log.i(TAG, "onZoomed, to [$deltaScale, $px, $py]")
                 }
 
                 override fun onZoomEnd(view: DocumentView) {
@@ -90,42 +84,40 @@ class PDFActivity : AppCompatActivity() {
                 }
             }
         }
-        pdf.load(FileSource(File("/sdcard/large.pdf")))
-
-        findViewById<View>(R.id.to_first).setOnClickListener { pdf.scrollToPage(0) }
-        findViewById<View>(R.id.to_last).setOnClickListener { pdf.scrollToPage(pdf.pageCount - 1) }
-        findViewById<View>(R.id.enable_writing).setOnClickListener {
-            (it as TextView).text = if (pdf.isWritingEnabled) "enable writing" else "disable writing"
-            pdf.isWritingEnabled = !pdf.isWritingEnabled
-        }
-        findViewById<View>(R.id.retreat_writing).setOnClickListener { pdf.retreatWriting() }
-        findViewById<View>(R.id.erase).setOnClickListener {
-            (it as TextView).text = if (pdf.isEraseMode) "eraser" else "pen"
-            pdf.isEraseMode = !pdf.isEraseMode
-        }
-
-        findViewById<View>(R.id.hide_side).setOnClickListener {
-            it as TextView
-            it.isSelected = !it.isSelected
-            side.visibility = if (it.isSelected) View.GONE else View.VISIBLE
-            it.text = if (it.isSelected) "show side" else "hide side"
-        }
-
-        findViewById<View>(R.id.crop).setOnClickListener {
-            it as TextView
-            it.isSelected = !it.isSelected
-            pdf.crop = if (it.isSelected) Rect(200, 200, 200, 200) else Rect()
-            it.text = if (it.isSelected) "uncrop" else "crop"
-        }
+        pdf.load(FileSource(File("/sdcard/test_pdf.pdf")))
     }
 
-    private val fullScreenFlags = View.SYSTEM_UI_FLAG_LOW_PROFILE or
-        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-        View.SYSTEM_UI_FLAG_FULLSCREEN or
-        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-        View.SYSTEM_UI_FLAG_IMMERSIVE
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.pdf, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.to_first -> pdf.scrollToPage(0)
+            R.id.to_last -> pdf.scrollToPage(pdf.pageCount - 1)
+            R.id.enable_writing -> {
+                item.title = if (pdf.isWritingEnabled) "ENABLE WRITING" else "DISABLE WRITING"
+                pdf.isWritingEnabled = !pdf.isWritingEnabled
+            }
+            R.id.retreat_writing -> pdf.retreatWriting()
+            R.id.erase -> {
+                item.title = if (pdf.isEraseMode) "ERASER" else "PEN"
+                pdf.isEraseMode = !pdf.isEraseMode
+            }
+            R.id.show_side -> {
+                findViewById<View>(R.id.side).apply {
+                    visibility = if (visibility == View.GONE) View.VISIBLE else View.GONE
+                    item.title = if (visibility == View.GONE) "SHOW SIDE" else "HIDE SIDE"
+                }
+            }
+            R.id.crop -> {
+                pdf.crop = if (pdf.crop.isEmpty) Rect(200, 200, 200, 200) else Rect()
+                item.title = if (pdf.crop.isEmpty) "CROP" else "CANCEL CROP"
+            }
+        }
+        return true
+    }
 
     companion object {
         const val TAG = "PDFActivity"
