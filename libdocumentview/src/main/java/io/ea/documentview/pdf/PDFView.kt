@@ -142,7 +142,11 @@ open class PDFView : DocumentView {
     /** Table of contents of document, return null if no document opened */
     val tableOfContents get() = if (renderer?.isOpened == true) renderer?.tableOfContents else null
 
-    /** Crop of pages, default is empty, changes on returned value has no side effects */
+    /**
+     * Crop of pages, default is empty, changes on returned value has no side effects
+     *
+     * Notice that the crop actually represents an insets
+     */
     var crop: Rect
         set(value) {
             if (internalCrop == value) return

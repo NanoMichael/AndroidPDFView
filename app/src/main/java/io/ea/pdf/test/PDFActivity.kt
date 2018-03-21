@@ -112,8 +112,8 @@ class PDFActivity : AppCompatActivity() {
                 }
             }
             R.id.crop -> {
-                pdf.crop = if (pdf.crop.isEmpty) Rect(200, 200, 200, 200) else Rect()
-                item.title = if (pdf.crop.isEmpty) "CROP" else "CANCEL CROP"
+                pdf.crop = if (pdf.crop.left == 0) Rect(200, 200, 200, 200) else Rect()
+                item.title = if (pdf.crop.left == 0) "CROP" else "CANCEL CROP"
             }
         }
         return true
