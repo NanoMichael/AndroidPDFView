@@ -1,21 +1,17 @@
 package io.ea.documentview.rendering
 
 import android.content.Context
-import android.graphics.Rect
 import android.os.HandlerThread
 import android.util.AttributeSet
 import android.util.Log
-import android.view.MotionEvent
-import io.ea.documentview.AdapterConfig
-import io.ea.documentview.DefaultAdapterConfig
-import io.ea.documentview.DocumentView
+import io.ea.documentview.AbsDocumentView
 import io.ea.pdf.BuildConfig
 
 /**
  * Created by nano on 18-3-22.
  */
 
-abstract class BitmapDocumentView : DocumentView {
+abstract class BitmapDocumentView : AbsDocumentView {
 
     constructor(context: Context) :
         this(context, null)
@@ -42,66 +38,25 @@ abstract class BitmapDocumentView : DocumentView {
             if (value != null && value !is BitmapDocumentAdapter)
                 throw IllegalArgumentException("Requires a BitmapDocumentAdapter")
             super.adapter = value
-            documentAdapter = value as? BitmapDocumentAdapter
+            bitmapAdapter = value as? BitmapDocumentAdapter
         }
 
     /** Delegate [adapter] */
-    var documentAdapter: BitmapDocumentAdapter? = null
+    var bitmapAdapter: BitmapDocumentAdapter? = null
         private set
-
-    /**
-     * Configurator for adapter, default is a [DefaultAdapterConfig] with 24dp page margin when scaled
-     * to filling the view width
-     */
-    var adapterConfig: AdapterConfig? = null
-        set(value) {
-            if (field === value) return
-            field = value
-            val pdfAdapter = documentAdapter ?: return
-            if (value != null && width != 0 && height != 0) {
-                value.update(width, height, pdfAdapter)
-                pdfAdapter.config = value
-            }
-        }
 
     /**
      * Bitmap pool for adapter, default is a [BitmapDocumentAdapter.BitmapPool]. You may want to share one
      * pool between adapters. But you should notice that you can not change the pool of adapter once
      * document has been loaded, you must specify your own pool before loading.
      */
-    var bitmapPool: BitmapDocumentAdapter.BitmapPool? = null
+    var bitmapPool: BitmapDocumentAdapter.BitmapPool = BitmapDocumentAdapter.BitmapPool(
+        DEFAULT_GRID_SIZE,
+        DEFAULT_GRID_SIZE,
+        false, 0.1f)
 
     /** State listener */
     var stateListener: StateListener? = null
-
-    /** If use best quality bitmap, default is `false` */
-    var bestQuality: Boolean = false
-
-    /** Whether gestures is enabled, default is `true` */
-    var isGestureEnabled = true
-
-    /** First visible page in document, return -1 if no document opened */
-    val firstVisiblePage get() = documentAdapter?.pageOf(firstVisibleRow) ?: -1
-
-    /** Last visible page in document, return -1 if no document opened */
-    val lastVisiblePage get() = documentAdapter?.pageOf(lastVisibleRow) ?: -1
-
-    /** Total page count of document, return 0 if no document opened */
-    val pageCount get() = documentAdapter?.pageCount ?: 0
-
-    /**
-     * Crop of pages, default is empty, changes on returned value has no side effects
-     *
-     * Notice that the crop actually represents an insets
-     */
-    var crop: Rect
-        set(value) {
-            if (internalCrop == value) return
-            onCropChange(value)
-        }
-        get() = Rect().apply { set(internalCrop) }
-
-    private val internalCrop = Rect()
 
     private var setupWhenGotSize = false
 
@@ -109,7 +64,7 @@ abstract class BitmapDocumentView : DocumentView {
      * Setup [renderer]
      *
      * [renderingThread] and [renderingHandler] will be initialized when this function get called,
-     * and all pending rendering tasks will be canceled.
+     * and all previous pending rendering tasks will be canceled.
      */
     protected fun setupRenderer() {
         if (renderingThread == null) renderingThread = HandlerThread("Bitmap Renderer").apply { start() }
@@ -119,6 +74,8 @@ abstract class BitmapDocumentView : DocumentView {
         renderer?.release()
 
         renderer = createRender()
+        renderingHandler?.renderer = renderer
+
         stateListener?.onLoading(this)
         renderingHandler?.post {
             val success = renderer?.open {
@@ -136,74 +93,30 @@ abstract class BitmapDocumentView : DocumentView {
     }
 
     private fun setup() {
-        val renderer = renderer ?: return
-        val renderingHandler = renderingHandler ?: return
-
-        renderingHandler.renderer = renderer
-
-        if (bitmapPool == null) bitmapPool = BitmapDocumentAdapter.BitmapPool(
-            DEFAULT_GRID_SIZE,
-            DEFAULT_GRID_SIZE,
-            bestQuality, 0.1f)
+        renderingHandler ?: return
+        renderer ?: return
 
         val adapter = createAdapter()
         adapter.checkCrop(crop)
         adapter.crop.set(crop)
 
-        val config = if (adapterConfig == null) {
-            val m = DEFAULT_FULL_WIDTH_PAGE_MARGIN * context.resources.displayMetrics.density
-            adapterConfig = DefaultAdapterConfig(m.toInt())
-            adapterConfig!!
-        } else adapterConfig!!
-
-        config.update(width, height, adapter)
-        adapter.config = config
+        adapterConfig.update(width, height, adapter)
+        adapter.config = adapterConfig
         adapter.setup()
 
         this.adapter = adapter
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        val adapter = documentAdapter ?: return
+        val adapter = bitmapAdapter ?: return
         if (setupWhenGotSize) {
             setup()
             setupWhenGotSize = false
         } else {
-            adapterConfig?.update(w, h, adapter)
+            adapterConfig.update(w, h, adapter)
         }
         super.onSizeChanged(w, h, oldw, oldh)
     }
-
-    private fun onCropChange(crop: Rect) {
-        if (documentAdapter == null) {
-            internalCrop.set(crop)
-            return
-        }
-
-        val adapter = documentAdapter!!
-        if (crop == adapter.crop) return
-
-        adapter.checkCrop(crop)
-        internalCrop.set(crop)
-
-        adapter.crop.set(crop)
-        adapterConfig?.update(width, height, adapter)
-
-        adapter.recalculate()
-        invalidateAll()
-    }
-
-    /** Scroll to [page] with [offset], [smooth] indicates if scroll smoothly, default is `false` */
-    fun scrollToPage(page: Int, offset: Int = 0, smooth: Boolean = false) {
-        val adapter = documentAdapter ?: return
-        val to = adapter.topPositionOf(page) + offset - adapter.currentPageMargin
-        stopAllAnimations()
-        if (smooth) smoothMoveTo(xOffset, to)
-        else moveTo(xOffset, to)
-    }
-
-    override fun onTouchEvent(event: MotionEvent) =
-        if (isGestureEnabled) super.onTouchEvent(event) else false
 
     override fun onDetachedFromWindow() {
         renderingThread?.quit()
@@ -241,6 +154,5 @@ abstract class BitmapDocumentView : DocumentView {
     companion object {
         const val TAG = "BitmapDocumentView"
         const val DEFAULT_GRID_SIZE = 320 // px
-        const val DEFAULT_FULL_WIDTH_PAGE_MARGIN = 24f // dp
     }
 }

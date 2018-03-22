@@ -2,7 +2,6 @@ package io.ea.documentview.rendering
 
 import android.graphics.Bitmap
 import io.ea.documentview.DocumentAdapter
-import io.ea.documentview.rendering.RenderingHandler
 
 /**
  * Created by nano on 17-11-30.
