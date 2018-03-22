@@ -11,9 +11,8 @@ import android.view.View
 import io.ea.documentview.DefaultAdapterConfig
 import io.ea.documentview.DocumentView
 import io.ea.documentview.pdf.FileSource
-import io.ea.documentview.pdf.PDFSource
-import io.ea.documentview.pdf.PDFView
 import io.ea.documentview.pdf.WritablePDFView
+import io.ea.documentview.rendering.BitmapDocumentView
 import java.io.File
 
 /**
@@ -65,21 +64,21 @@ class PDFActivity : AppCompatActivity() {
                     Log.e(TAG, "onZoomEnd")
                 }
             }
-            stateListener = object : PDFView.StateListener {
+            stateListener = object : BitmapDocumentView.StateListener {
 
-                override fun onLoading(view: PDFView) {
+                override fun onLoading(view: BitmapDocumentView) {
                     Log.i(TAG, "onLoading")
                 }
 
-                override fun onLoaded(view: PDFView) {
+                override fun onLoaded(view: BitmapDocumentView) {
                     Log.i(TAG, "onLoaded")
                 }
 
-                override fun onLoadError(src: PDFSource, view: PDFView, cause: Throwable) {
+                override fun onLoadError(view: BitmapDocumentView, cause: Throwable) {
                     Log.e(TAG, "onLoadError", cause)
                 }
 
-                override fun onRenderingError(page: Int, view: PDFView, cause: Throwable) {
+                override fun onRenderingError(page: Int, view: BitmapDocumentView, cause: Throwable) {
                     Log.e(TAG, "onRenderingError", cause)
                 }
             }

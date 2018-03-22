@@ -1,7 +1,10 @@
 package io.ea.documentview
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.NinePatchDrawable
 import android.util.AttributeSet
 import android.view.MotionEvent
 
@@ -32,6 +35,11 @@ abstract class AbsDocumentView : DocumentView {
 
     private var documentAdapter: DocumentAdapter? = null
 
+    /** Page background, default is `null` */
+    var pageBackground: Drawable? = null
+
+    protected var tmpArea = Rect()
+
     /**
      * Configurator for adapter, default is a [DefaultAdapterConfig] with 24dp page margin when scaled
      * to filling the view width
@@ -48,7 +56,7 @@ abstract class AbsDocumentView : DocumentView {
         }
 
     /** Whether gestures is enabled, default is `true` */
-    var isGestureEnabled = true
+    var isGesturesEnabled = true
 
     /** First visible page in document, return -1 if no document opened */
     val firstVisiblePage get() = documentAdapter?.pageOf(firstVisibleRow) ?: -1
@@ -106,8 +114,25 @@ abstract class AbsDocumentView : DocumentView {
         else moveTo(xOffset, to)
     }
 
+    /** Draw pages background if has any */
+    override fun beforeDrawSlices(canvas: Canvas) {
+        val bg = pageBackground ?: return
+        val adapter = documentAdapter ?: return
+        if (firstVisiblePage < 0 || lastVisiblePage < 0) return
+        tmpArea.setEmpty()
+        (bg as? NinePatchDrawable)?.getPadding(tmpArea)
+        for (i in firstVisiblePage..lastVisiblePage) {
+            val l = adapter.leftPositionOf(i)
+            val t = adapter.topPositionOf(i)
+            val r = l + adapter.widthOf(i)
+            val b = t + adapter.heightOf(i)
+            bg.setBounds(l - tmpArea.left, t - tmpArea.top, r + tmpArea.right, b + tmpArea.bottom)
+            bg.draw(canvas)
+        }
+    }
+
     override fun onTouchEvent(event: MotionEvent) =
-        if (isGestureEnabled) super.onTouchEvent(event) else false
+        if (isGesturesEnabled) super.onTouchEvent(event) else false
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         if (documentAdapter != null) adapterConfig.update(w, h, documentAdapter!!)
