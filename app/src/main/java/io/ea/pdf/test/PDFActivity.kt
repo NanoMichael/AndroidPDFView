@@ -10,10 +10,10 @@ import android.view.MenuItem
 import android.view.View
 import io.ea.documentview.DefaultAdapterConfig
 import io.ea.documentview.DocumentView
+import io.ea.documentview.pdf.FileSource
+import io.ea.documentview.pdf.PDFSource
 import io.ea.documentview.pdf.PDFView
 import io.ea.documentview.pdf.WritablePDFView
-import io.ea.documentview.pdf.source.FileSource
-import io.ea.documentview.pdf.source.PDFSource
 import java.io.File
 
 /**

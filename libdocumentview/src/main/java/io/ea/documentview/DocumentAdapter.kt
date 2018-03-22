@@ -166,6 +166,9 @@ abstract class DocumentAdapter(
         return -1
     }
 
+    /** Page count of document */
+    val pageCount get() = originalPagesSize.size
+
     /** Current page margin with [rawScale] */
     val currentPageMargin get() = (config.pageMargin * rawScale).toInt()
 

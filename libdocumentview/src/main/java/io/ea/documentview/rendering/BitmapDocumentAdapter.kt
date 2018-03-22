@@ -1,4 +1,4 @@
-package io.ea.documentview.pdf
+package io.ea.documentview.rendering
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -15,9 +15,9 @@ import java.util.*
 /**
  * Created by nano on 17-11-30.
  *
- * To rendering PDF document
+ * To render document that use bitmap to render.
  */
-open class PDFDocumentAdapter(
+open class BitmapDocumentAdapter(
     val view: DocumentView,
     originalPagesSize: List<Size>,
     val bitmapPool: BitmapPool,
@@ -27,12 +27,13 @@ open class PDFDocumentAdapter(
 
     private val src = Rect()
 
-    override fun newGrid() = PDFGrid()
+    override fun newGrid() = BitmapGrid()
 
-    inner class PDFGrid : RenderGrid() {
+    inner class BitmapGrid : RenderGrid() {
 
         private var thumbnail: Bitmap? = null
         private var content: Bitmap? = null
+        private var tmpRegion = Rect()
 
         override val render get() = if (content != null) content else thumbnail
 
@@ -40,12 +41,17 @@ open class PDFDocumentAdapter(
             if (view.isZooming) {
                 thumbnail = bitmapPool.acquireThumbnail()
                 val scale = bitmapPool.thumbnailScale * rawScale
-                val l = (clip.left * bitmapPool.thumbnailScale).toInt()
-                val t = (clip.top * bitmapPool.thumbnailScale).toInt()
-                renderingHandler.renderGrid(this, scale, l, t, renderingCallback)
+                tmpRegion.apply {
+                    val s = bitmapPool.thumbnailScale
+                    left = (clip.left * s).toInt()
+                    top = (clip.top * s).toInt()
+                    right = (clip.right * s).toInt()
+                    bottom = (clip.bottom * s).toInt()
+                }
+                renderingHandler.renderGrid(this, scale, tmpRegion, renderingCallback)
             } else {
                 content = bitmapPool.acquireRender()
-                renderingHandler.renderGrid(this, rawScale, clip.left, clip.top, renderingCallback)
+                renderingHandler.renderGrid(this, rawScale, clip, renderingCallback)
             }
         }
 
@@ -83,11 +89,11 @@ open class PDFDocumentAdapter(
         }
 
         override fun onRenderingError(page: Int, cause: Throwable) {
-            this@PDFDocumentAdapter.onRenderingError(page, cause)
+            this@BitmapDocumentAdapter.onRenderingError(page, cause)
         }
     }
 
-    /** Simple pool to create and recycle bitmap, you may want share one pool between adapters */
+    /** Simple pool to create and recycle bitmap, you may want to share one pool between adapters */
     open class BitmapPool(val width: Int, val height: Int, val bestQuality: Boolean, val thumbnailScale: Float) {
 
         private val renderPool = LinkedList<Bitmap>()

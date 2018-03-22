@@ -20,7 +20,8 @@ import io.ea.documentview.AdapterConfig
 import io.ea.documentview.DefaultAdapterConfig
 import io.ea.documentview.DocumentView
 import io.ea.documentview.Size
-import io.ea.documentview.pdf.source.PDFSource
+import io.ea.documentview.rendering.BitmapDocumentAdapter
+import io.ea.documentview.rendering.RenderingHandler
 import io.ea.pdf.BuildConfig
 
 /**
@@ -46,18 +47,18 @@ open class PDFView : DocumentView {
     var renderer: PDFRenderer? = null
         private set
 
-    /** MUST BE A [PDFDocumentAdapter], otherwise a [IllegalArgumentException] will be thrown */
+    /** MUST BE A [BitmapDocumentAdapter], or a [IllegalArgumentException] will be thrown */
     override var adapter: SliceAdapter?
         get() = super.adapter
         set(value) {
-            if (value != null && value !is PDFDocumentAdapter)
-                throw IllegalArgumentException("Requires a PDFDocumentAdapter")
+            if (value != null && value !is BitmapDocumentAdapter)
+                throw IllegalArgumentException("Requires a BitmapDocumentAdapter")
             super.adapter = value
-            pdfAdapter = value as PDFDocumentAdapter?
+            pdfAdapter = value as? BitmapDocumentAdapter
         }
 
     /** Delegate [adapter] */
-    var pdfAdapter: PDFDocumentAdapter? = null
+    var pdfAdapter: BitmapDocumentAdapter? = null
         private set
 
     /**
@@ -76,11 +77,11 @@ open class PDFView : DocumentView {
         }
 
     /**
-     * Bitmap pool for adapter, default is a [PDFDocumentAdapter.BitmapPool]. You may want to share one
+     * Bitmap pool for adapter, default is a [BitmapDocumentAdapter.BitmapPool]. You may want to share one
      * pool between adapters. But you should notice that you can not change the pool of adapter once
-     * the adapter has been settled, you must specify your own pool before [load] has been called.
+     * the function [load] has been called, you must specify your own pool before [load].
      */
-    var bitmapPool: PDFDocumentAdapter.BitmapPool? = null
+    var bitmapPool: BitmapDocumentAdapter.BitmapPool? = null
 
     /** Drawable to show press */
     var pressingDrawable: Drawable = ColorDrawable(Color.argb(112, 0, 0, 255))
@@ -101,17 +102,17 @@ open class PDFView : DocumentView {
     var stateListener: StateListener? = null
 
     /**
-     * Create a new [PDFDocumentAdapter], default is a [PDFDocumentAdapter] with `320 * 320` grid size
+     * Create a new [BitmapDocumentAdapter], default is a [BitmapDocumentAdapter] with `320 * 320` grid size
      *
      * FIXME Ugly way to expose create new adapter
      */
     var newAdapter: (
         PDFView,
         List<Size>,
-        PDFDocumentAdapter.BitmapPool,
+        BitmapDocumentAdapter.BitmapPool,
         RenderingHandler,
-        (Int, Throwable) -> Unit) -> PDFDocumentAdapter = { view, sizes, pool, handler, callback ->
-        PDFDocumentAdapter(view, sizes, pool, handler, callback)
+        (Int, Throwable) -> Unit) -> BitmapDocumentAdapter = { view, sizes, pool, handler, callback ->
+        BitmapDocumentAdapter(view, sizes, pool, handler, callback)
     }
 
     /** Whether rendering annotation, default is `false` */
@@ -201,7 +202,7 @@ open class PDFView : DocumentView {
         val sizes = renderer.pagesSize
 
         val pool = if (bitmapPool == null) {
-            bitmapPool = PDFDocumentAdapter.BitmapPool(DEFAULT_GRID_SIZE, DEFAULT_GRID_SIZE, false, 0.1f)
+            bitmapPool = BitmapDocumentAdapter.BitmapPool(DEFAULT_GRID_SIZE, DEFAULT_GRID_SIZE, false, 0.1f)
             bitmapPool!!
         } else bitmapPool!!
 

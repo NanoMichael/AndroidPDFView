@@ -18,4 +18,11 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="test pdf view"/>
+
+    <Button
+        android:id="@+id/to_large_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="test large image"/>
 </LinearLayout>

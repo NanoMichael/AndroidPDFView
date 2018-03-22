@@ -1,5 +1,6 @@
-package io.ea.documentview.pdf
+package io.ea.documentview.rendering
 
+import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -11,18 +12,20 @@ import java.util.*
 class RenderingHandler(looper: Looper) :
     Handler(looper) {
 
-    var renderer: PDFRenderer? = null
+    var renderer: Renderer? = null
     private val taskPool = LinkedList<RenderingTask>()
 
     /**
      * Render grid
      *
-     * [scale] specifies the document scale, ([left], [top]) specifies the start position of the page
-     * to render. When task done, [RenderingCallback.onRendered] will be called whether the rendering
-     * is successful or not.
+     * [scale] specifies the document scale, [region] specifies the region of the page to render, this
+     * function doesn't change the values of [region].
+     *
+     * Function [RenderingCallback.onRendered] will be called whether the rendering is successful
+     * or not when task done.
      */
-    fun renderGrid(grid: RenderGrid, scale: Float, left: Int, top: Int, callback: RenderingCallback) {
-        val task = acquireTask().apply { set(grid, scale, left, top, callback) }
+    fun renderGrid(grid: RenderGrid, scale: Float, region: Rect, callback: RenderingCallback) {
+        val task = acquireTask().apply { set(grid, scale, region, callback) }
         val msg = obtainMessage(MSG_RENDERING, task)
         sendMessage(msg)
     }
@@ -46,8 +49,8 @@ class RenderingHandler(looper: Looper) :
         val grid = task.grid ?: return
         val render = grid.render ?: return
 
-        val success = renderer.renderPageClip(render, grid.page,
-            task.left, task.top, task.scale, callback::onRenderingError)
+        val success = renderer.renderPageClip(render, grid.page, task.scale, task.region,
+            callback::onRenderingError)
 
         if (task.isInUse) callback.onRendered(grid, success)
         recycleTask(task)
@@ -64,11 +67,9 @@ class RenderingHandler(looper: Looper) :
 
     class RenderingTask {
 
+        val region = Rect()
+
         var scale: Float = 1f
-            private set
-        var left: Int = 0
-            private set
-        var top: Int = 0
             private set
         var grid: RenderGrid? = null
             private set
@@ -78,12 +79,11 @@ class RenderingHandler(looper: Looper) :
         var isInUse = false
             private set
 
-        fun set(grid: RenderGrid, scale: Float, left: Int, top: Int, callback: RenderingCallback) {
+        fun set(grid: RenderGrid, scale: Float, region: Rect, callback: RenderingCallback) {
             isInUse = true
             this.grid = grid
             this.scale = scale
-            this.left = left
-            this.top = top
+            this.region.set(region)
             this.callback = callback
             grid.task = this
         }

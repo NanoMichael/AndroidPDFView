@@ -22,5 +22,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.to_pdf).setOnClickListener {
             startActivity(Intent(this, PDFActivity::class.java))
         }
+
+        findViewById<View>(R.id.to_large_image).setOnClickListener {
+            startActivity(Intent(this, LargeImageActivity::class.java))
+        }
     }
 }

@@ -3,15 +3,16 @@ package io.ea.documentview.pdf
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Point
+import android.graphics.Rect
 import com.shockwave.pdfium.PdfDocument
 import com.shockwave.pdfium.PdfiumCore
 import io.ea.documentview.Size
-import io.ea.documentview.pdf.source.PDFSource
+import io.ea.documentview.rendering.Renderer
 
 /**
  * Created by nano on 17-11-29.
  */
-class PDFRenderer(private val context: Context, private val src: PDFSource) {
+class PDFRenderer(private val context: Context, private val src: PDFSource) : Renderer {
 
     private val lock = Any()
 
@@ -19,12 +20,12 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) {
     private var document: PdfDocument? = null
 
     /** Size of all pages with current DPI */
-    var pagesSize = listOf<Size>()
+    override var pagesSize = listOf<Size>()
         private set
 
     /**
-     * If document is opened, any call of methods of this class will throw an [IllegalStateException]
-     * when [isOpened] is false, you should check this value before calling
+     * Any call of methods of this class will throw an [IllegalStateException]
+     * when document is not opened, you should check this value before call
      */
     @Volatile
     var isOpened = false
@@ -38,8 +39,7 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) {
     private val errPages = hashSetOf<Int>()
     private var pagesLinks = arrayOf<List<PdfDocument.Link>?>()
 
-    /** Open PDF document with callback [onErr] */
-    fun open(onErr: (Throwable) -> Unit) = try {
+    override fun open(onErr: (Throwable) -> Unit) = try {
         val document = src.createDocument(context, core)
 
         val pagesSize = ArrayList<Size>(core.getPageCount(document))
@@ -93,6 +93,10 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) {
         return true
     }
 
+    override fun renderPageClip(bitmap: Bitmap, page: Int, scale: Float, region: Rect,
+        onErr: (Int, Throwable) -> Unit) =
+        renderPageClip(bitmap, page, region.left, region.top, scale, onErr)
+
     /** Get page count of document, return 0 if document not opened */
     val pageCount get() = pagesSize.size
 
@@ -125,7 +129,7 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) {
     }
 
     /** Close opened document */
-    fun release() {
+    override fun release() {
         if (document != null) core.closeDocument(document)
         document = null
         isOpened = false
