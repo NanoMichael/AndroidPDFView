@@ -120,7 +120,7 @@ open class HandWriting(private val view: DocumentView) {
         view.invalidate()
     }
 
-    fun onTouchEvent(event: MotionEvent): Boolean {
+    open fun onTouchEvent(event: MotionEvent): Boolean {
         val action = MotionEventCompat.getActionMasked(event)
         val index = MotionEventCompat.getActionIndex(event)
 
@@ -142,14 +142,13 @@ open class HandWriting(private val view: DocumentView) {
         return true
     }
 
-    fun zoom() {
+    open fun zoom() {
         val scale = view.scale
         writingMatrix.apply { reset(); setScale(scale, scale) }
         strokes.forEach { it.path.transform(writingMatrix); it.bounds.scale(scale); it.thickness *= scale }
     }
 
-    /** Draw only visible strokes */
-    fun drawStrokes(canvas: Canvas) {
+    open fun drawStrokes(canvas: Canvas) {
         with(view) {
             visibleWindow.set(
                 leftEdge.toFloat(),
@@ -164,6 +163,7 @@ open class HandWriting(private val view: DocumentView) {
             canvas.drawPath(currStroke!!.path, paint)
         }
 
+        /* Draw only visible strokes */
         strokes.forEach {
             if (it.isVisible) {
                 paint.strokeWidth = it.thickness

@@ -30,7 +30,7 @@ class PDFActivity : AppCompatActivity() {
         pdf = findViewById<WritablePDFView>(R.id.pdf).apply {
             adapterConfig = DefaultAdapterConfig(18)
             pageBackground = resources.getDrawable(R.drawable.bg_page)
-            writingColor = Color.RED
+            handWriting.writingColor = Color.RED
             onSingleTab = { Log.i(TAG, "onSingleTab") }
             scrollListener = object : DocumentView.ScrollListener {
 
@@ -99,10 +99,10 @@ class PDFActivity : AppCompatActivity() {
                 item.title = if (pdf.isWritingEnabled) "ENABLE WRITING" else "DISABLE WRITING"
                 pdf.isWritingEnabled = !pdf.isWritingEnabled
             }
-            R.id.retreat_writing -> pdf.retreatWriting()
+            R.id.retreat_writing -> pdf.handWriting.retreatWriting()
             R.id.erase -> {
-                item.title = if (pdf.isEraseMode) "ERASER" else "PEN"
-                pdf.isEraseMode = !pdf.isEraseMode
+                item.title = if (pdf.handWriting.isEraseMode) "ERASER" else "PEN"
+                pdf.handWriting.isEraseMode = !pdf.handWriting.isEraseMode
             }
             R.id.show_side -> {
                 findViewById<View>(R.id.side).apply {
