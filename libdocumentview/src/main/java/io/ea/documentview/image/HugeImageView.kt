@@ -1,17 +1,17 @@
 package io.ea.documentview.image
 
 import android.content.Context
-import android.os.HandlerThread
 import android.util.AttributeSet
-import io.ea.documentview.DocumentView
+import io.ea.documentview.Size
 import io.ea.documentview.rendering.BitmapDocumentAdapter
-import io.ea.documentview.rendering.RenderingHandler
+import io.ea.documentview.rendering.BitmapDocumentView
+import io.ea.documentview.rendering.Renderer
 
 /**
  * Created by nano on 18-3-21.
  */
 
-open class HugeImageView : DocumentView {
+open class HugeImageView : BitmapDocumentView {
 
     constructor(context: Context) :
         this(context, null)
@@ -22,32 +22,26 @@ open class HugeImageView : DocumentView {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
         super(context, attrs, defStyleAttr)
 
-    private var renderingThread: HandlerThread? = null
+    var imageRenderer: ImageRenderer? = null
 
-    var renderingHandler: RenderingHandler? = null
-        private set
+    private var src: ImageSource? = null
 
-    var renderer: ImageRenderer? = null
-        private set
+    override fun createRender(): Renderer {
+        val src = src ?: throw IllegalStateException("src was not initialized")
+        imageRenderer = ImageRenderer(src, bitmapPool.bestQuality, Size(bitmapPool.width, bitmapPool.height))
+        return imageRenderer!!
+    }
 
-    /** MUST BE A [BitmapDocumentAdapter], or a [IllegalArgumentException] will be thrown */
-    override var adapter: SliceAdapter?
-        get() = super.adapter
-        set(value) {
-            if (value != null && value !is BitmapDocumentAdapter)
-                throw IllegalArgumentException("Requires a BitmapDocumentAdapter")
-            super.adapter = value
-            imageAdapter = value as? BitmapDocumentAdapter
+    override fun createAdapter(): BitmapDocumentAdapter {
+        val renderer = imageRenderer ?: throw IllegalStateException("renderer was not initialized")
+        val handler = renderingHandler ?: throw IllegalStateException("renderingHandler was not initialized")
+        return BitmapDocumentAdapter(this, renderer.pagesSize, bitmapPool, handler) { page, cause ->
+            stateListener?.onRenderingError(page, this, cause)
         }
-
-    var imageAdapter: BitmapDocumentAdapter? = null
-        private set
+    }
 
     fun load(src: ImageSource) {
-        if (renderingHandler == null) renderingThread = HandlerThread("Image Renderer").apply { start() }
-        if (renderingHandler == null) renderingHandler = RenderingHandler(renderingThread!!.looper)
-
-        renderingHandler?.cancelAllPendingTasks()
-        renderer?.release()
+        this.src = src
+        setupRenderer()
     }
 }

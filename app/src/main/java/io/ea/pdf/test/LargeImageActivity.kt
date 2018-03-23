@@ -1,10 +1,9 @@
 package io.ea.pdf.test
 
-import android.graphics.*
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import android.widget.ImageView
+import io.ea.documentview.image.FileSource
+import io.ea.documentview.image.HugeImageView
 
 /**
  * Created by nano on 18-3-21.
@@ -12,19 +11,31 @@ import android.widget.ImageView
 
 class LargeImageActivity : AppCompatActivity() {
 
+    private lateinit var image: HugeImageView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_large_image)
 
-        val decoder = BitmapRegionDecoder.newInstance("/sdcard/large_image.jpg", false)
-        val bitmap = Bitmap.createBitmap(1000, 1000, Bitmap.Config.RGB_565)
+        image = findViewById<HugeImageView>(R.id.image).apply {
+        }
+        image.load(FileSource("/sdcard/large_image.jpg"))
+
+        /*val iv1 = findViewById<ImageView>(R.id.image1)
+        val iv2 = findViewById<ImageView>(R.id.image2)
+
+        val decoder = BitmapRegionDecoder.newInstance("/sdcard/large_image.jpg", true)
         val options = BitmapFactory.Options().apply {
+            inSampleSize = 6
             inPreferredConfig = Bitmap.Config.RGB_565
         }
-        val b = decoder.decodeRegion(Rect(0, 0, 500, 500), options)
-        Log.e("abc", "${bitmap === b}")
-        val canvas = Canvas(bitmap)
-        canvas.drawBitmap(b, Matrix().apply { setScale(2f, 2f) }, Paint())
-        findViewById<ImageView>(R.id.image).setImageBitmap(bitmap)
+
+        val b1 = decoder.decodeRegion(Rect(0, 0, 2000, 2000), options)
+        val b2 = decoder.decodeRegion(Rect(0, 2000, 2000, 4000), options)
+
+        Log.e("abc", "size = ${b1.width}")
+
+        iv1.setImageBitmap(b1)
+        iv2.setImageBitmap(b2)*/
     }
 }

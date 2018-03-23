@@ -21,7 +21,7 @@ open class WritablePDFView : PDFView {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
         super(context, attrs, defStyleAttr)
 
-    /** Whether writing is enabled, when is true, scroll and scale are disabled */
+    /** Whether writing is enabled, scroll and scale are disabled when is `true`, default is `false` */
     var isWritingEnabled = false
         set(value) {
             field = value

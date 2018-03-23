@@ -1,5 +1,6 @@
 package io.ea.documentview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
@@ -306,6 +307,7 @@ open class DocumentView : View {
         canvas.restore()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent) = gestureDetector.onTouch(event)
 
     override fun canScrollVertically(direction: Int) = when {
