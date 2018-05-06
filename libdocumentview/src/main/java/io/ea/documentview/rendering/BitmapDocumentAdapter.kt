@@ -1,9 +1,6 @@
 package io.ea.documentview.rendering
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Rect
+import android.graphics.*
 import android.support.v4.view.ViewCompat
 import android.util.Log
 import io.ea.documentview.DocumentAdapter
@@ -34,6 +31,7 @@ open class BitmapDocumentAdapter(
         private var thumbnail: Bitmap? = null
         private var content: Bitmap? = null
         private var tmpRegion = Rect()
+        private val debugPaint = Paint().apply { color = Color.RED; style = Paint.Style.STROKE }
 
         override val render get() = if (content != null) content else thumbnail
 
@@ -66,6 +64,7 @@ open class BitmapDocumentAdapter(
                 src.set(0, 0, w, h)
                 if (!src.isEmpty) canvas.drawBitmap(thumbnail, src, bounds, null)
             }
+            canvas.drawRect(bounds, debugPaint)
         }
 
         override fun onRecycle() {

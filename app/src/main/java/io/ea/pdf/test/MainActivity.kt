@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.to_large_image).setOnClickListener {
-            startActivity(Intent(this, LargeImageActivity::class.java))
+            startActivity(Intent(this, RectInvalidateActivity::class.java))
         }
     }
 }

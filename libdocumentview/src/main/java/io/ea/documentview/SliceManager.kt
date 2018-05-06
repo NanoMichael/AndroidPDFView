@@ -76,7 +76,7 @@ internal class SliceManager(val view: DocumentView) {
     fun populate() {
         adapter ?: return
         visibleWindow.set(view.leftEdge, view.topEdge, view.rightEdge, view.bottomEdge)
-        /** Following invoke order is important */
+        /* Following invoke order is important */
         fillFirst(); fillAbove(); fillBelow(); fillLeft(); fillRight()
     }
 
@@ -225,7 +225,7 @@ internal class SliceManager(val view: DocumentView) {
     /** Recycle invisible slices */
     fun recycle() {
         visibleWindow.set(view.leftEdge, view.topEdge, view.rightEdge, view.bottomEdge)
-        /** Following invoke order is important */
+        /* Following invoke order is important */
         recycleLeft(); recycleRight(); recycleAbove(); recycleBelow()
     }
 
@@ -268,7 +268,7 @@ internal class SliceManager(val view: DocumentView) {
             if (row.isEmpty()) {
                 rowIt.remove()
             } else {
-                /**
+                /*
                  * We just need to test first slice of the row,
                  * because the invisible slice of left side was recycled before
                  */

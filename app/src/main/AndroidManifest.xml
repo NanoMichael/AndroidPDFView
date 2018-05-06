@@ -13,14 +13,16 @@
 
         <activity android:name=".MainActivity">
             <intent-filter>
-                <category android:name="android.intent.category.DEFAULT"/>
                 <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <activity android:name=".DocumentActivity"/>
 
         <activity android:name=".LargeImageActivity"/>
+
+        <activity android:name=".RectInvalidateActivity"/>
 
         <activity
             android:name=".PDFActivity"
