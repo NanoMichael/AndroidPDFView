@@ -26,7 +26,7 @@ import java.util.*
  *
  * ```
  *
- * Slices may have different width and height, but requires same height
+ * Slices may have different width and height, but requires the height same
  * in same row
  */
 internal class SliceManager(val view: DocumentView) {
@@ -57,10 +57,10 @@ internal class SliceManager(val view: DocumentView) {
         }
     }
 
-    /** First visible row in document, if slices is empty return -1 */
+    /** First visible row in document, return -1 if [slices] is empty */
     val firstVisibleRow get() = if (slices.isEmpty()) -1 else slices.first.first.row
 
-    /** Last visible row in document, if slices is empty return -1 */
+    /** Last visible row in document, return -1 if [slices] is empty */
     val lastVisibleRow get() = if (slices.isEmpty()) -1 else slices.last.first.row
 
     /** Recycle all populated slices */
@@ -135,7 +135,7 @@ internal class SliceManager(val view: DocumentView) {
     private fun check(slice: DocumentView.Slice, rowHeight: Int) {
         check(slice)
         if (rowHeight != 0 && slice.bounds.height() != rowHeight)
-            throw IllegalStateException("Requires same height in one row")
+            throw IllegalStateException("Requires the height same in one row")
     }
 
     /**

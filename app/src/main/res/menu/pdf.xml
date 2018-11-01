@@ -28,4 +28,8 @@
     <item
         android:id="@+id/show_side"
         android:title="SHOW SIDE"/>
+
+    <item
+        android:id="@+id/show_debug"
+        android:title="ENABLE DEBUG"/>
 </menu>

@@ -43,8 +43,8 @@ abstract class DocumentAdapter(
 
     /**
      * Crop on original pages of document, default is empty.
-     * If cropped width/height great than the [minPageWidth]/[minPageHeight],
-     * it will be reset to empty, you should check before set.
+     * If cropped width/height greater than the [minPageWidth]/[minPageHeight],
+     * it will be reset to empty, you should check it before set.
      */
     val crop = Rect()
     private var scaledCrop = Rect()

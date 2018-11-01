@@ -114,6 +114,10 @@ class PDFActivity : AppCompatActivity() {
                 pdf.crop = if (pdf.crop.left == 0) Rect(200, 200, 200, 200) else Rect()
                 item.title = if (pdf.crop.left == 0) "CROP" else "CANCEL CROP"
             }
+            R.id.show_debug -> {
+                DocumentView.DEBUG = !DocumentView.DEBUG
+                item.title = if (DocumentView.DEBUG) "DISABLE DEBUG" else "ENABLE DEBUG"
+            }
         }
         return true
     }

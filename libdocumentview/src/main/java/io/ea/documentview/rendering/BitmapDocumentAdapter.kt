@@ -64,7 +64,7 @@ open class BitmapDocumentAdapter(
                 src.set(0, 0, w, h)
                 if (!src.isEmpty) canvas.drawBitmap(thumbnail, src, bounds, null)
             }
-            canvas.drawRect(bounds, debugPaint)
+            if (DocumentView.DEBUG) canvas.drawRect(bounds, debugPaint)
         }
 
         override fun onRecycle() {

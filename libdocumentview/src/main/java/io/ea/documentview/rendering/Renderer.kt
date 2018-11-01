@@ -9,16 +9,18 @@ import io.ea.documentview.Size
  *
  * Renderer to render parts of document
  */
-
 interface Renderer {
 
     /** Original pages size of document, return empty list if no document opened */
     val pagesSize: List<Size>
 
-    /** Open renderer with error callback [onErr], return false if open failed */
+    /** Open renderer with error callback [onErr], return false if failed to open */
     fun open(onErr: (cause: Throwable) -> Unit): Boolean
 
-    /** Render page fragment into [bitmap] with specified [scale] and [region], return false if render failed */
+    /**
+     * Render page fragment into [bitmap] with specified [scale] and [region],
+     * return false if failed to render
+     */
     fun renderPageClip(
         bitmap: Bitmap,
         page: Int,

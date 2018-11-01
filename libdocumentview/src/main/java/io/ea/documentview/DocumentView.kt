@@ -13,9 +13,9 @@ import android.view.View
 /**
  * Created by nano on 17-11-23.
  *
- * To rendering big document. It does not care about how the document rendered, but just do the create
- * and recycle work through [SliceManager], and handle gestures through [DragScaleDetector].
- * A document can be a very large bitmap or something can be cut into parts and render.
+ * To rendering big document. It does not care about how the document was rendered, but just do
+ * the create and recycle work by [SliceManager], and handle gestures by [DragScaleDetector].
+ * A document can be a very large bitmap or something can be cut into parts to render.
  */
 open class DocumentView : View {
 
@@ -354,10 +354,10 @@ open class DocumentView : View {
 
         /**
          * Scale document with [relativeScale], when this function get called, the [scale] will
-         * return to 1, you should recalculate the slices bounds here
+         * return to 1, you should recalculate the slices bounds here.
          *
          * Notice that [relativeScale] is not the document scale, if you has a scale
-         * on original document, you should handle it
+         * on original document, you should handle it.
          */
         fun onScale(relativeScale: Float)
 
@@ -401,7 +401,7 @@ open class DocumentView : View {
         /**
          * Callback method to be called when document scrolled. It's normal that [onScrollSateChanged]
          * not get called while this method has been invoked, for example when jump to a position with
-         * no animations.
+         * no animations, the scroll state will not change.
          */
         fun onScrolled(view: DocumentView, dx: Int, dy: Int)
 
@@ -416,6 +416,7 @@ open class DocumentView : View {
 
         fun onZoomStart(view: DocumentView)
 
+        /** Callback when zoomed, ([px], [py]) specifies the pivot point of this zooming */
         fun onZoomed(view: DocumentView, deltaScale: Float, px: Float, py: Float)
 
         fun onZoomEnd(view: DocumentView)
@@ -425,5 +426,9 @@ open class DocumentView : View {
         const val SCROLL_STATE_IDLE = 0
         const val SCROLL_STATE_DRAGGING = 1
         const val SCROLL_STATE_FLING = 2
+
+        /** If draw debug */
+        @JvmStatic
+        var DEBUG = false
     }
 }

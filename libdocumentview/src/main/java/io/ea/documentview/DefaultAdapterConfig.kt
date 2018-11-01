@@ -5,7 +5,7 @@ import android.graphics.Rect
 /**
  * Created by nano on 17-12-2.
  */
-class DefaultAdapterConfig(private val fullWidthPageMargin: Int) : AdapterConfig {
+open class DefaultAdapterConfig(private val fullWidthPageMargin: Int) : AdapterConfig {
 
     override var initialScale = 1f
 
