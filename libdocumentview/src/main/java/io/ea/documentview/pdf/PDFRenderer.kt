@@ -20,7 +20,7 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) : Re
     private var document: PdfDocument? = null
 
     /** Size of all pages with current DPI */
-    override var pagesSize = listOf<Size>()
+    override var pagesSize = emptyList<Size>()
         private set
 
     /**
@@ -118,7 +118,7 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) : Re
         return try {
             pagesLinks[page] ?: core.getPageLinks(document, page).also { pagesLinks[page] = it }
         } catch (e: Throwable) {
-            listOf()
+            emptyList()
         }
     }
 
