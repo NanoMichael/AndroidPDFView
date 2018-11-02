@@ -2,7 +2,29 @@
 
 buildscript {
 
-    ext.kotlinVersion = '1.2.41'
+    ext {
+        kotlinVersion = '1.2.41'
+
+        bintrayRepo = 'maven'
+        bintrayName = 'AndroidPDFView'
+
+        publishedGroupId = 'io.ea'
+        libraryName = 'PDFView'
+        artifact = 'pdfview'
+
+        libraryDesc = 'An efficient Android PDF view.'
+
+        siteUrl = 'https://github.com/NanoMichael/AndroidPDFView'
+        gitUrl = 'https://github.com/NanoMichael/AndroidPDFView'
+
+        developerId = 'Nano'
+        developerName = 'Nano'
+        developerEmail = 'artiano@hotmail.com'
+
+        licenseName = 'The Apache Software License, Version 2.0'
+        licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        allLicenses = ["Apache-2.0"]
+    }
 
     repositories {
         google()
@@ -13,6 +35,9 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.1.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.16"
+
+        classpath "com.github.dcendents:android-maven-gradle-plugin:1.5"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
