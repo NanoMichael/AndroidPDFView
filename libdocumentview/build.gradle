@@ -24,7 +24,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.2.41"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation "com.github.barteksc:pdfium-android:1.8.2"
 }
 
@@ -55,14 +55,20 @@ artifacts {
     archives javadocJar
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 uploadArchives {
     repositories {
         mavenDeployer {
             pom.groupId = 'io.ea'
             pom.artifactId = 'pdfview'
             pom.version = android.defaultConfig.versionName
-            repository(url: 'http://nexus.dev.xdf100.com/repository/maven-releases/') {
-                authentication(userName: "admin", password: "Youlearn100")
+            def uploadUrl = properties.getProperty('archive.url.private')
+            def user = properties.getProperty('archive.user.private')
+            def pwd = properties.getProperty('archive.pwd.private')
+            repository(url: uploadUrl) {
+                authentication(userName: user, password: pwd)
             }
         }
     }
