@@ -35,7 +35,7 @@ open class DefaultAdapterConfig(private val fullWidthPageMargin: Int) : AdapterC
 
         /**
          * If page margin has been calculated before or crop has not been changed,
-         * we don't change page margin, just update scales
+         * we don't change it, just update scales
          */
         if (pageMargin == 0 || prevCrop != adapter.crop) pageMargin = (fullWidthPageMargin / widthScale).toInt()
         else widthScale = viewWidth / (maxPageWidth + pageMargin * 2f)
@@ -53,5 +53,6 @@ open class DefaultAdapterConfig(private val fullWidthPageMargin: Int) : AdapterC
     }
 
     override fun toString(): String =
-        "initial scale = $initialScale, max scale = $maxScale, min scale = $minScale, mid scale = $midScale"
+        "initial scale = $initialScale, max scale = $maxScale, " +
+            "min scale = $minScale, mid scale = $midScale, page margin = $pageMargin"
 }

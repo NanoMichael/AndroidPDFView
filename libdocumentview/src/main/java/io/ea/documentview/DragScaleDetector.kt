@@ -38,7 +38,10 @@ internal class DragScaleDetector(val view: DocumentView, private val animator: D
         var y = dy
         if (!scrolling) {
             view.scrollState = DocumentView.SCROLL_STATE_DRAGGING
-            /* Hack way to remove the touch slop distance when first scrolling event happened */
+            /*
+             * FIXME There should be a better way
+             * Hack way to remove the touch slop distance when first scrolling event happened
+             */
             if (e2.pointerCount < 2) {
                 val r = Math.sqrt((touchSlop * touchSlop / (dx * dx + dy * dy)).toDouble()).toFloat()
                 x -= dx * r
@@ -106,6 +109,7 @@ internal class DragScaleDetector(val view: DocumentView, private val animator: D
                     cancelPress()
                 }
                 /*
+                 * FIXME There should be a better way
                  * A hack way to solve the bug that the
                  * [android.view.ScaleGestureDetector.OnScaleGestureListener.onScaleEnd]
                  * may not get called after scaling has end

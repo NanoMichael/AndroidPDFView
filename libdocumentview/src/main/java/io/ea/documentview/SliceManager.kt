@@ -8,26 +8,25 @@ import java.util.*
  * Created by nano on 17-11-24.
  *
  * To manage slices, fill slices into visible window, and recycle invisible
- * slices into pool
+ * slices into pool.
  *
- * Slices are arranged by following way
+ * Slices are arranged by following way:
  *
  * ```
- *
+ *          +-----------------------+
+ *          |    slice   |   slice  | -> preload
  * +------------------------------------------------+
  * |        |    slice   |   slice  |               |
- * +-------------------------------------------     +
- * |  slice   |    slice   |   slice  | slice |     |
+ * +------------------------------------------+     +
+ * |  slice   |    slice   |   slice  | slice |     | -> visible window
  * +------------------------------------------------+
  * |      | slice   |    slice   |   slice  | slice |
- * +      ------------------------------------------+
- * | visible window                                 |
  * +------------------------------------------------+
  *
  * ```
  *
  * Slices may have different width and height, but requires the height same
- * in same row
+ * in same row.
  */
 internal class SliceManager(val view: DocumentView) {
 
@@ -38,11 +37,11 @@ internal class SliceManager(val view: DocumentView) {
             switchAdapter(old)
         }
 
-    /** Slices in visible window */
+    /** Slices in loading window */
     private val slices = LinkedList<LinkedList<DocumentView.Slice>>()
     private val recycledSlices = LinkedList<DocumentView.Slice>()
-    /** Visible area */
-    private val visibleWindow = Rect()
+    /** Area to load */
+    private val loadWindow = Rect()
     private val tmpRect = Rect()
 
     /** Switch new adapter and clear slices if needed */
@@ -75,7 +74,7 @@ internal class SliceManager(val view: DocumentView) {
     /** Populate slice into visible window */
     fun populate() {
         adapter ?: return
-        visibleWindow.set(view.leftEdge, view.topEdge, view.rightEdge, view.bottomEdge)
+        loadWindow.set(view.leftEdge, view.topEdge, view.rightEdge, view.bottomEdge)
         /* Following invoke order is important */
         fillFirst(); fillAbove(); fillBelow(); fillLeft(); fillRight()
     }
@@ -95,11 +94,11 @@ internal class SliceManager(val view: DocumentView) {
     }
 
     /** Check if slice is visible */
-    private val DocumentView.Slice.isVisible get() = Rect.intersects(visibleWindow, toViewScale(bounds))
+    private val DocumentView.Slice.isVisible get() = Rect.intersects(loadWindow, toViewScale(bounds))
 
     /** Check if slice is outside of visible window in vertical direction */
     private val DocumentView.Slice.isOutsideVertical
-        get() = with(toViewScale(bounds)) { top > visibleWindow.bottom || bottom < visibleWindow.top }
+        get() = with(toViewScale(bounds)) { top > loadWindow.bottom || bottom < loadWindow.top }
 
     /** Fill first slice into visible window */
     private fun fillFirst() {
@@ -224,7 +223,7 @@ internal class SliceManager(val view: DocumentView) {
 
     /** Recycle invisible slices */
     fun recycle() {
-        visibleWindow.set(view.leftEdge, view.topEdge, view.rightEdge, view.bottomEdge)
+        loadWindow.set(view.leftEdge, view.topEdge, view.rightEdge, view.bottomEdge)
         /* Following invoke order is important */
         recycleLeft(); recycleRight(); recycleAbove(); recycleBelow()
     }

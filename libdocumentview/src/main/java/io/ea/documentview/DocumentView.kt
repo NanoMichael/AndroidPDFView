@@ -60,7 +60,7 @@ open class DocumentView : View {
     /** Callback to listen zoom events, default is `null` */
     var zoomListener: ZoomListener? = null
 
-    /** Temporary scale, when zoom end, this value will return to 1 */
+    /** Temporary scale, this value will return to 1 after zoom end */
     var scale = 1f
         private set(value) {
             if (field == value) return

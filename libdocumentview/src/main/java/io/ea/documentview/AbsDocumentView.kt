@@ -105,7 +105,7 @@ abstract class AbsDocumentView : DocumentView {
         return DefaultAdapterConfig(m.toInt())
     }
 
-    /** Scroll to [page] with [offset], [smooth] indicates if scroll smoothly, default is `false` */
+    /** Scroll to [page] with [offset], [smooth] indicates whether scroll smoothly, default is `false` */
     fun scrollToPage(page: Int, offset: Int = 0, smooth: Boolean = false) {
         val adapter = documentAdapter ?: return
         val to = adapter.topPositionOf(page) + offset - adapter.currentPageMargin

@@ -20,7 +20,7 @@ abstract class DocumentAdapter(
     val minPageWidth = originalPagesSize.minBy { it.width }?.width ?: 0
     val minPageHeight = originalPagesSize.minBy { it.height }?.height ?: 0
 
-    /** Config to get scales and page margin */
+    /** Configs to get scales and page margin */
     var config: AdapterConfig = EmptyAdapterConfig()
         set(value) {
             if (field === value) return

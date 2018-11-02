@@ -20,10 +20,6 @@
 
         <activity android:name=".DocumentActivity"/>
 
-        <activity android:name=".LargeImageActivity"/>
-
-        <activity android:name=".RectInvalidateActivity"/>
-
         <activity
             android:name=".PDFActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"/>

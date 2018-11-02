@@ -25,7 +25,7 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) : Re
 
     /**
      * Any call of methods of this class will throw an [IllegalStateException]
-     * when document is not opened, you should check this value before call
+     * if document was not opened, you should check this value before.
      */
     @Volatile
     var isOpened = false
@@ -81,7 +81,8 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) : Re
     }
 
     /** Render page fragment into [bitmap] with offset ([left], [top]) */
-    fun renderPageClip(bitmap: Bitmap, page: Int, left: Int, top: Int, scale: Float,
+    fun renderPageClip(
+        bitmap: Bitmap, page: Int, left: Int, top: Int, scale: Float,
         onErr: (Int, Throwable) -> Unit): Boolean {
 
         if (!openPage(page, onErr)) return false
@@ -93,7 +94,8 @@ class PDFRenderer(private val context: Context, private val src: PDFSource) : Re
         return true
     }
 
-    override fun renderPageClip(bitmap: Bitmap, page: Int, scale: Float, region: Rect,
+    override fun renderPageClip(
+        bitmap: Bitmap, page: Int, scale: Float, region: Rect,
         onErr: (Int, Throwable) -> Unit) =
         renderPageClip(bitmap, page, region.left, region.top, scale, onErr)
 
