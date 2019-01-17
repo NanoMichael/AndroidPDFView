@@ -3,7 +3,6 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "io.ea.pdf.test"
         minSdkVersion 14
@@ -30,5 +29,5 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
     testImplementation 'junit:junit:4.12'
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.2.41"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 }
