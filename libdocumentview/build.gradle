@@ -1,18 +1,14 @@
 apply plugin: 'com.android.library'
-apply plugin: 'org.jetbrains.dokka-android'
 apply plugin: 'kotlin-android'
-apply plugin: 'maven'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion compileSdk
 
     defaultConfig {
-        minSdkVersion 11
-        targetSdkVersion 26
-        versionCode 11
-        versionName "1.1.0"
+        minSdkVersion minSdk
+        targetSdkVersion targetSdk
+        versionCode versionCode
+        versionName versionName
     }
     buildTypes {
         release {
@@ -27,110 +23,4 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation "com.github.barteksc:pdfium-android:1.8.2"
-}
-
-group = publishedGroupId
-version = android.defaultConfig.versionName
-
-install {
-    repositories.mavenInstaller {
-        pom.project {
-            packaging 'aar'
-            groupId publishedGroupId
-            artifactId artifact
-
-            name libraryName
-            description libraryDesc
-            url siteUrl
-
-            licenses {
-                license {
-                    name licenseName
-                    url licenseUrl
-                }
-            }
-            developers {
-                developer {
-                    id developerId
-                    name developerName
-                    email developerEmail
-                }
-            }
-            scm {
-                connection gitUrl
-                developerConnection gitUrl
-                url siteUrl
-            }
-        }
-    }
-}
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    destinationDir = file("../javadoc/")
-    failOnError false
-}
-
-task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
-    outputFormat = 'javadoc'
-    outputDirectory = javadoc.destinationDir
-}
-
-task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-task androidSourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.srcDirs
-}
-
-artifacts {
-    archives androidSourcesJar
-    archives javadocJar
-}
-
-bintray {
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-
-    configurations = ['archives']
-    pkg {
-        repo = bintrayRepo
-        name = bintrayName
-        desc = libraryDesc
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = allLicenses
-        dryRun = false
-        publish = true
-        override = false
-        publicDownloadNumbers = true
-        version {
-            desc = libraryDesc
-        }
-    }
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            Properties properties = new Properties()
-            properties.load(project.rootProject.file('local.properties').newDataInputStream())
-            pom.groupId = publishedGroupId
-            pom.artifactId = artifact
-            pom.version = version
-            def uploadUrl = properties.getProperty('archive.url.private')
-            def user = properties.getProperty('archive.user.private')
-            def pwd = properties.getProperty('archive.pwd.private')
-            repository(url: uploadUrl) {
-                authentication(userName: user, password: pwd)
-            }
-        }
-    }
 }
